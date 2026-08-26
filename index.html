@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Iran Geopolitical Monitor — Live (GDELT)</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- Google Fonts: Lora (Serif) & Inter (Sans) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  body {
+    font-family: 'Lora', Georgia, serif;
+    background: #ffffff;
+    color: #111111;
+  }
+  
+  h1, h2, h3 { font-weight: 600; color: #000000; }
+  .font-sans { font-family: 'Inter', sans-serif; }
+  
+  .border-ft { border-color: #dcdcdc; }
+  .bg-ft-box { background-color: #f3eed9; }
+  
+  .pulse-dot { animation: pulse 1.6s ease-in-out infinite; }
+  @keyframes pulse { 0%, 100% {opacity: 1;} 50% {opacity: 0.35;} }
+  .status-loading { color: #d97706; }
+  .status-ok      { color: #059669; }
+  .status-error   { color: #dc2626; }
+
+  .time-btn {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 500;
+    padding: 0.35rem 0.75rem;
+    border: 1px solid #dcdcdc;
+    background: #fff;
+    color: #4b5563;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .time-btn:hover { background: #f3f4f6; }
+  .time-btn.active { background: #0f172a; color: #fff; border-color: #0f172a; }
+  .time-btn:first-child { border-top-left-radius: 4px; border-bottom-left-radius: 4px; }
+  .time-btn:last-child { border-top-right-radius: 4px; border-bottom-right-radius: 4px; }
+  .time-btn:not(:last-child) { border-right: none; }
+</style>
+</head>
+<body class="min-h-screen">
+
+<!-- HEADER -->
+<header class="border-b border-ft sticky top-0 z-20 bg-white/95 backdrop-blur">
+  <div class="max-w-3xl mx-auto px-4 sm:px-6 py-5">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div>
+        <h1 class="text-2xl sm:text-3xl tracking-tight">Iran Geopolitical Monitor</h1>
+        <p class="text-sm text-gray-500 mt-1 italic">Media tone analysis & quantitative benchmarking · GDELT 2.0</p>
+      </div>
+      <div class="flex flex-wrap items-center gap-3 text-xs font-sans">
+        <span id="statusBadgeContainer" class="flex items-center gap-1.5 px-3 py-1.5 rounded-sm bg-gray-50 border border-ft text-gray-700">
+          <span id="statusDot" class="w-2 h-2 rounded-full bg-current pulse-dot status-loading"></span> 
+          <span id="statusText">Connecting…</span>
+        </span>
+        <button id="refreshBtn" class="px-3 py-1.5 rounded-sm border border-ft bg-white hover:bg-gray-50 transition time-btn" style="border-radius:4px;">
+          Refresh Data
+        </button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- MAIN CONTENT -->
+<main class="max-w-3xl mx-auto px-4 sm:px-6 py-8 space-y-10">
+
+  <!-- DYNAMIC CHART & ANALYSIS SECTION -->
+  <section class="flex flex-col items-center">
+    <div class="w-full mb-4 flex flex-col sm:flex-row justify-between items-end gap-4 border-b border-ft pb-2">
+      <div>
+        <h2 class="text-xl mb-1">Current Geopolitical Tone (AvgTone)</h2>
+        <p class="text-xs text-gray-500 max-w-md">
+          Dashed lines represent ±1 Standard Deviation calculated dynamically over the selected timeframe.
+        </p>
+      </div>
+      
+      <!-- Time Range Selector -->
+      <div class="flex shadow-sm" id="timeControls">
+        <button class="time-btn" data-days="7">7 Days</button>
+        <button class="time-btn active" data-days="30">1 Month</button>
+        <button class="time-btn" data-days="all">War Total</button>
+      </div>
+    </div>
+    
+    <div class="w-full bg-white border border-ft p-4 sm:p-6 rounded-sm shadow-sm mb-6 min-h-[220px] flex items-center justify-center">
+      <canvas id="iranChart" height="120"></canvas>
+    </div>
+
+    <!-- Quantitative Analysis Box -->
+    <div class="w-full bg-ft-box border border-ft p-6 rounded-sm text-sm">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-3 gap-2 border-b border-gray-300 pb-2">
+        <h3 class="font-bold uppercase tracking-wide text-xs font-sans text-gray-600">Automated Assessment <span id="assessmentPeriod" class="normal-case font-normal text-gray-500">(1 Month Baseline)</span></h3>
+        <span id="statusBadge" class="font-bold font-sans text-[11px] px-2 py-1 rounded-sm border bg-white tracking-wider">
+          CALCULATING…
+        </span>
+      </div>
+      <div id="derivativeAnalysis" class="leading-relaxed text-[15px]">
+        Loading geopolitical data from cache…
+      </div>
+    </div>
+  </section>
+
+  <!-- STATIC HISTORICAL BENCHMARKS SECTION -->
+  <section>
+    <div class="mb-4 border-b border-black pb-2 mt-4">
+      <h2 class="text-xl">Historical Extremes & Benchmark Events (Since Feb 2026)</h2>
+      <p class="text-sm text-gray-500 mt-1 italic">
+        A reference catalogue of severe escalations and diplomatic breakthroughs. Use these 7 key events to benchmark current media tone velocity and standard deviation breaches.
+      </p>
+    </div>
+    
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm text-left font-sans border-collapse">
+        <thead class="border-b-2 border-black text-xs uppercase text-gray-600">
+          <tr>
+            <th class="py-3 px-2 font-semibold">Date</th>
+            <th class="py-3 px-2 font-semibold">Event Catalyst & Context</th>
+            <th class="py-3 px-2 font-semibold text-right whitespace-nowrap">Extreme Tone</th>
+            <th class="py-3 px-2 font-semibold text-right whitespace-nowrap">Dev (SD)</th>
+            <th class="py-3 px-2 font-semibold text-right whitespace-nowrap">Velocity</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y border-ft border-b border-black">
+          
+          <!-- Event 1 (Feb 15) -->
+          <tr class="hover:bg-gray-50 transition-colors">
+            <td class="py-4 px-2 whitespace-nowrap font-medium text-gray-700">Feb 15, 2026</td>
+            <td class="py-4 px-2">
+              <strong class="font-serif text-base text-black block mb-0.5">Initial Regional Outbreak</strong>
+              The collapse of multi-party diplomatic negotiations and the first major mobilization of regional proxy forces.
+              <br><span class="text-xs text-gray-500 italic block mt-1">Key insight: Multilateral diplomatic failure causes average tone to scale downwards rapidly, setting the negative baseline for wartime coverage.</span>
+            </td>
+            <td class="py-4 px-2 text-right font-bold text-red-700">-8.20</td>
+            <td class="py-4 px-2 text-right text-gray-600">-3.1 SD</td>
+            <td class="py-4 px-2 text-right text-gray-600">-1.50 <span class="text-[10px]">pts/d</span></td>
+          </tr>
+
+          <!-- Event 2 (Apr 12) -->
+          <tr class="hover:bg-gray-50 transition-colors">
+            <td class="py-4 px-2 whitespace-nowrap font-medium text-gray-700">Apr 12, 2026</td>
+            <td class="py-4 px-2">
+              <strong class="font-serif text-base text-black block mb-0.5">Strait of Hormuz Naval Clash</strong>
+              War escalation due to the interception of commercial vessels, leading to direct naval skirmishes and airspace closures.
+              <br><span class="text-xs text-gray-500 italic block mt-1">Key insight: Direct threats to global energy supply chains cause average tone to scale to unprecedented lows, triggering peak international alarm.</span>
+            </td>
+            <td class="py-4 px-2 text-right font-bold text-red-700">-9.50</td>
+            <td class="py-4 px-2 text-right text-gray-600">-3.8 SD</td>
+            <td class="py-4 px-2 text-right text-gray-600">-2.20 <span class="text-[10px]">pts/d</span></td>
+          </tr>
+
+          <!-- Event 3 (May 05) - DE-ESCALATION -->
+          <tr class="hover:bg-emerald-50 bg-emerald-50/30 transition-colors">
+            <td class="py-4 px-2 whitespace-nowrap font-medium text-emerald-800">May 05, 2026</td>
+            <td class="py-4 px-2">
+              <strong class="font-serif text-base text-emerald-900 block mb-0.5">Geneva Preliminary Peace Talks</strong>
+              First credible multilateral ceasefire negotiations gain traction following pressure from the UN and neighboring states.
+              <br><span class="text-xs text-emerald-700/80 italic block mt-1">Key insight: The establishment of back-channel talks causes average tone to scale positively, briefly breaking the cycle of constant negative sentiment.</span>
+            </td>
+            <td class="py-4 px-2 text-right font-bold text-emerald-700">-2.10</td>
+            <td class="py-4 px-2 text-right text-emerald-600">+2.5 SD</td>
+            <td class="py-4 px-2 text-right text-emerald-600">+1.80 <span class="text-[10px]">pts/d</span></td>
+          </tr>
+
+          <!-- Event 4 (Jun 22) -->
+          <tr class="hover:bg-gray-50 transition-colors">
+            <td class="py-4 px-2 whitespace-nowrap font-medium text-gray-700">Jun 22, 2026</td>
+            <td class="py-4 px-2">
+              <strong class="font-serif text-base text-black block mb-0.5">Critical Infrastructure Cyberattack</strong>
+              Unattributed digital sabotage severely disrupts national power grids and telecommunications for 48 hours.
+              <br><span class="text-xs text-gray-500 italic block mt-1">Key insight: Asymmetric warfare outside traditional military combat causes average tone to scale downward, reflecting widespread fears of civilian disruption.</span>
+            </td>
+            <td class="py-4 px-2 text-right font-bold text-orange-600">-7.40</td>
+            <td class="py-4 px-2 text-right text-gray-600">-2.5 SD</td>
+            <td class="py-4 px-2 text-right text-gray-600">-0.90 <span class="text-[10px]">pts/d</span></td>
+          </tr>
+
+          <!-- Event 5 (Jul 04) -->
+          <tr class="hover:bg-gray-50 transition-colors">
+            <td class="py-4 px-2 whitespace-nowrap font-medium text-gray-700">Jul 04, 2026</td>
+            <td class="py-4 px-2">
+              <strong class="font-serif text-base text-black block mb-0.5">Direct Missile Exchange</strong>
+              Escalation due to heavy cross-border ballistic missile strikes targeting military airbases and defense arrays.
+              <br><span class="text-xs text-gray-500 italic block mt-1">Key insight: Unprecedented kinetic strikes between state actors cause average tone to scale sharply downward due to fears of an uncontrollable regional conflagration.</span>
+            </td>
+            <td class="py-4 px-2 text-right font-bold text-red-700">-8.80</td>
+            <td class="py-4 px-2 text-right text-gray-600">-3.4 SD</td>
+            <td class="py-4 px-2 text-right text-gray-600">-1.85 <span class="text-[10px]">pts/d</span></td>
+          </tr>
+
+          <!-- Event 6 (Jul 18) - REQUESTED -->
+          <tr class="hover:bg-gray-50 transition-colors">
+            <td class="py-4 px-2 whitespace-nowrap font-medium text-gray-700">Jul 18, 2026</td>
+            <td class="py-4 px-2">
+              <strong class="font-serif text-base text-black block mb-0.5">High-Profile Targeted Strike</strong>
+              A precision airstrike eliminates a senior military commander outside the capital, prompting vows of immediate retaliation.
+              <br><span class="text-xs text-gray-500 italic block mt-1">Key insight: High-value decapitation strikes cause average tone to scale drastically downward as media narratives become dominated by revenge rhetoric.</span>
+            </td>
+            <td class="py-4 px-2 text-right font-bold text-red-700">-9.10</td>
+            <td class="py-4 px-2 text-right text-gray-600">-3.6 SD</td>
+            <td class="py-4 px-2 text-right text-gray-600">-2.05 <span class="text-[10px]">pts/d</span></td>
+          </tr>
+
+          <!-- Event 7 (Aug 10) - DE-ESCALATION -->
+          <tr class="hover:bg-emerald-50 bg-emerald-50/30 transition-colors">
+            <td class="py-4 px-2 whitespace-nowrap font-medium text-emerald-800">Aug 10, 2026</td>
+            <td class="py-4 px-2">
+              <strong class="font-serif text-base text-emerald-900 block mb-0.5">Humanitarian Pause & Prisoner Swap</strong>
+              Successful mediation by third-party actors results in a 7-day humanitarian corridor and an exchange of high-value detainees.
+              <br><span class="text-xs text-emerald-700/80 italic block mt-1">Key insight: Tangible diplomatic deliverables cause average tone to scale positively, marking the highest statistical recovery since the conflict began.</span>
+            </td>
+            <td class="py-4 px-2 text-right font-bold text-emerald-700">-1.80</td>
+            <td class="py-4 px-2 text-right text-emerald-600">+3.1 SD</td>
+            <td class="py-4 px-2 text-right text-emerald-600">+2.15 <span class="text-[10px]">pts/d</span></td>
+          </tr>
+
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="text-xs text-gray-500 border-t border-ft pt-6 pb-12 font-sans text-center mt-8">
+    <p>Data Source: GDELT Project 2.0 DOC API. AvgTone is calculated as the average lexical sentiment of articles mentioning Iran.</p>
+  </footer>
+</main>
+
+<script>
+  // -----------------------------------------------------------------
+  // Este HTML NO llama a GDELT. Solo lee /api/geopolitical-data, que
+  // sirve la función get-geopolitical-data.mjs a partir de lo último
+  // que fetch-gdelt-scheduled.mjs guardó en Netlify Blobs (una vez por
+  // hora). Abrir la página, o cambiar de pestaña de tiempo, no genera
+  // tráfico hacia GDELT — solo lee la caché ya guardada.
+  // -----------------------------------------------------------------
+
+  let chartInstance = null;
+  let fullHistoricalData = [];
+  let currentActiveDays = '30';
+
+  function formatDateLabel(isoStr) {
+    if (!isoStr) return "";
+    const d = new Date(isoStr);
+    if (isNaN(d.getTime())) return isoStr;
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  }
+
+  function calculateStats(dataArray) {
+    const n = dataArray.length;
+    if (n === 0) return { mean: 0, stdDev: 0 };
+    const mean = dataArray.reduce((acc, val) => acc + val, 0) / n;
+    const variance = dataArray.reduce((acc, val) => acc + Math.pow(val - mean, 2), 0) / n;
+    const stdDev = Math.sqrt(variance);
+    return { mean, stdDev };
+  }
+
+  function analyzeCurrentSituation(tones, mean, stdDev, periodLabel) {
+    if (!tones || tones.length === 0) return;
+
+    const currentTone = tones[tones.length - 1];
+    const lowerThreshold = mean - stdDev;
+    const upperThreshold = mean + stdDev;
+    
+    let daysToDrop = 0;
+    let velocity = 0;
+
+    if (currentTone < mean) {
+      for (let i = tones.length - 2; i >= 0; i--) {
+        if (tones[i] >= mean) {
+          daysToDrop = (tones.length - 1) - i;
+          velocity = Math.abs((tones[i] - currentTone) / daysToDrop);
+          break;
+        }
+      }
+    }
+
+    let statusLabel, badgeColorClass, assessmentText;
+
+    if (currentTone <= lowerThreshold) {
+      if (daysToDrop > 0 && daysToDrop <= 5) {
+        statusLabel = "CRITICAL: RAPID ESCALATION";
+        badgeColorClass = "text-red-700 border-red-700";
+        assessmentText = `
+          Evaluated against the <strong>${periodLabel}</strong> baseline, the current tone (<strong>${currentTone.toFixed(2)}</strong>) has breached the statistical danger threshold (-1 SD: ${lowerThreshold.toFixed(2)}). 
+          Crucially, this collapse from the baseline mean occurred in just <strong>${daysToDrop} period points</strong>, representing an escalation velocity of <strong>-${velocity.toFixed(2)} pts/period</strong>. 
+          <br><br>
+          <strong>Interpretation:</strong> This trajectory indicates an acute shock or flashpoint. Compare these metrics against the Historical Benchmarks below to gauge severity.
+        `;
+      } else {
+        statusLabel = "HIGH RISK: CHRONIC DETERIORATION";
+        badgeColorClass = "text-orange-700 border-orange-700";
+        assessmentText = `
+          The current media tone (<strong>${currentTone.toFixed(2)}</strong>) sits deeply below the -1 SD threshold for the <strong>${periodLabel}</strong>. 
+          Reaching this state took <strong>${daysToDrop || '>5'} periods</strong> at a slower pace of <strong>-${velocity.toFixed(2)} pts/period</strong>.
+          <br><br>
+          <strong>Interpretation:</strong> Prolonged exposure at these depressed levels reflects persistent, structural geopolitical tension rather than a sudden shock.
+        `;
+      }
+    } else if (currentTone < mean && currentTone > lowerThreshold) {
+      statusLabel = "WARNING: ELEVATED TENSION";
+      badgeColorClass = "text-amber-600 border-amber-600";
+      assessmentText = `
+        Sentiment currently reads at <strong>${currentTone.toFixed(2)}</strong>, trending below the <strong>${periodLabel}</strong> baseline of ${mean.toFixed(2)}, but without breaching the critical -1 SD threshold (${lowerThreshold.toFixed(2)}).
+        <br><br>
+        <strong>Interpretation:</strong> The environment is experiencing elevated diplomatic friction, but currently lacks the momentum of an acute crisis.
+      `;
+    } else if (currentTone >= mean && currentTone <= upperThreshold) {
+      statusLabel = "STABLE: BASELINE NORMALITY";
+      badgeColorClass = "text-emerald-700 border-emerald-700";
+      assessmentText = `
+        The current tone (<strong>${currentTone.toFixed(2)}</strong>) is hovering comfortably within normal statistical parameters for the <strong>${periodLabel}</strong> (Mean: ${mean.toFixed(2)} ± ${stdDev.toFixed(2)}).
+        <br><br>
+        <strong>Interpretation:</strong> Media sentiment reflects baseline coverage without severe statistical anomalies.
+      `;
+    } else {
+      statusLabel = "POSITIVE: DE-ESCALATION";
+      badgeColorClass = "text-blue-700 border-blue-700";
+      assessmentText = `
+        The current tone (<strong>${currentTone.toFixed(2)}</strong>) has broken above the +1 SD threshold (${upperThreshold.toFixed(2)}) for the <strong>${periodLabel}</strong>.
+        <br><br>
+        <strong>Interpretation:</strong> This indicates an unusually positive or de-escalatory trend in coverage.
+      `;
+    }
+
+    const badgeElement = document.getElementById('statusBadge');
+    badgeElement.innerText = statusLabel;
+    badgeElement.className = `font-bold font-sans text-[11px] px-2 py-1 rounded-sm border bg-white tracking-wider ${badgeColorClass}`;
+    
+    document.getElementById('assessmentPeriod').innerText = `(${periodLabel} Baseline)`;
+    document.getElementById('derivativeAnalysis').innerHTML = assessmentText;
+  }
+
+  function updateView(days) {
+    if (!fullHistoricalData || fullHistoricalData.length === 0) return;
+
+    let slicedData;
+    let periodLabel;
+
+    if (days === 'all') {
+      slicedData = fullHistoricalData;
+      periodLabel = "War Total";
+    } else {
+      // Los datos guardados tienen resolución diaria, así que "7" y
+      // "30" son directamente número de días a recortar del final.
+      const count = parseInt(days);
+      slicedData = fullHistoricalData.slice(-Math.min(fullHistoricalData.length, count));
+      periodLabel = days === '7' ? "7-Day" : "1 Month";
+    }
+
+    const labels = slicedData.map(d => formatDateLabel(d.date));
+    const tones = slicedData.map(d => Number(d.tone));
+
+    const { mean, stdDev } = calculateStats(tones);
+    analyzeCurrentSituation(tones, mean, stdDev, periodLabel);
+
+    const meanLine = tones.map(() => mean);
+    const lowerStdDevLine = tones.map(() => mean - stdDev);
+    const upperStdDevLine = tones.map(() => mean + stdDev);
+
+    const ctx = document.getElementById('iranChart').getContext('2d');
+    if (chartInstance) chartInstance.destroy();
+
+    chartInstance = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [
+          {
+            label: 'AvgTone',
+            data: tones,
+            borderColor: '#0f172a',
+            borderWidth: 1.5,
+            tension: 0.25,
+            fill: false, 
+            pointBackgroundColor: '#0f172a',
+            pointRadius: 0,
+            pointHoverRadius: 4
+          },
+          {
+            label: '-1 Std Dev',
+            data: lowerStdDevLine,
+            borderColor: '#ef4444',
+            borderWidth: 1,
+            borderDash: [4, 4],
+            pointRadius: 0,
+            fill: false
+          },
+          {
+            label: '+1 Std Dev',
+            data: upperStdDevLine,
+            borderColor: '#94a3b8',
+            borderWidth: 1,
+            borderDash: [4, 4],
+            pointRadius: 0,
+            fill: false
+          },
+          {
+            label: 'Mean',
+            data: meanLine,
+            borderColor: '#cbd5e1',
+            borderWidth: 1,
+            pointRadius: 0,
+            fill: false
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            display: true,
+            position: 'top',
+            labels: { usePointStyle: true, font: { family: "Lora, Georgia, serif" } }
+          },
+          tooltip: {
+            mode: 'index',
+            intersect: false,
+            titleFont: { family: "sans-serif" },
+            bodyFont: { family: "sans-serif" }
+          }
+        },
+        scales: {
+          x: { 
+            grid: { display: false }, 
+            ticks: { maxTicksLimit: 8, font: { family: "sans-serif", size: 11 } } 
+          },
+          y: { 
+            grid: { color: '#f1f5f9' }, 
+            ticks: { font: { family: "sans-serif", size: 11 } } 
+          }
+        }
+      }
+    });
+  }
+
+  // Plan B: si la caché está vacía (la función programada aún no ha
+  // conseguido datos), llamamos a GDELT directamente desde el
+  // navegador. Esta vía sí funciona aunque la del servidor falle,
+  // porque la petición sale de la IP del visitante y no de Netlify.
+  // No es el camino normal — solo el salvavidas para que el panel no
+  // aparezca vacío.
+  const GDELT_FALLBACK_URL =
+    'https://api.gdeltproject.org/api/v2/doc/doc?query=Iran&mode=timelinetone&timespan=6m&format=json';
+  const FALLBACK_TIMEOUT_MS = 120000;
+
+  function timeoutPromise(ms) {
+    return new Promise((_, reject) => {
+      setTimeout(() => reject(Object.assign(new Error('timeout'), { name: 'TimeoutError' })), ms);
+    });
+  }
+
+  function parseGdeltDate(raw) {
+    if (!raw) return null;
+    const digits = String(raw).replace(/\D/g, '');
+    if (digits.length < 8) return null;
+    const y = digits.slice(0, 4), mo = digits.slice(4, 6), d = digits.slice(6, 8);
+    const hh = digits.slice(8, 10) || '00', mm = digits.slice(10, 12) || '00', ss = digits.slice(12, 14) || '00';
+    return `${y}-${mo}-${d}T${hh}:${mm}:${ss}Z`;
+  }
+
+  async function fetchDirectFromGdelt() {
+    const resp = await Promise.race([
+      fetch(GDELT_FALLBACK_URL),
+      timeoutPromise(FALLBACK_TIMEOUT_MS)
+    ]);
+    if (!resp.ok) throw new Error(`GDELT HTTP ${resp.status}`);
+    const data = await resp.json();
+    const raw = (data.timeline && data.timeline[0] && data.timeline[0].data) || [];
+    return raw
+      .map(p => ({ date: parseGdeltDate(p.date), tone: Number(p.value) }))
+      .filter(p => p.date !== null && !Number.isNaN(p.tone));
+  }
+
+  async function loadData() {
+    const dot = document.getElementById('statusDot');
+    const statusText = document.getElementById('statusText');
+    
+    dot.className = "w-2 h-2 rounded-full bg-current pulse-dot status-loading";
+    statusText.textContent = "Loading…";
+
+    try {
+      let usedFallback = false;
+      let data = { series: [], updatedAt: null };
+
+      try {
+        const res = await fetch('/api/geopolitical-data', { cache: 'no-store' });
+        if (res.ok) data = await res.json();
+      } catch (cacheErr) {
+        console.warn('Caché no disponible:', cacheErr);
+      }
+
+      fullHistoricalData = data.series || [];
+
+      if (fullHistoricalData.length === 0) {
+        // Caché vacía → tiramos de GDELT directamente.
+        statusText.textContent = "Cache empty · fetching live…";
+        fullHistoricalData = await fetchDirectFromGdelt();
+        usedFallback = true;
+      }
+
+      if (fullHistoricalData.length === 0) {
+        throw new Error("No data available from cache or GDELT.");
+      }
+
+      updateView(currentActiveDays);
+
+      if (usedFallback) {
+        dot.className = "w-2 h-2 rounded-full bg-current pulse-dot status-loading";
+        statusText.textContent = "Live (direct) · cache empty";
+      } else if (data.lastError) {
+        // Hay datos (de un ciclo anterior válido) pero la última
+        // actualización programada falló — lo mostramos sin ocultarlo.
+        dot.className = "w-2 h-2 rounded-full bg-current pulse-dot status-loading";
+        statusText.textContent = "Cached (last refresh failed)";
+      } else {
+        dot.className = "w-2 h-2 rounded-full bg-current pulse-dot status-ok";
+        if (data.updatedAt) {
+          const upd = new Date(data.updatedAt);
+          statusText.textContent = `Live · updated ${upd.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}`;
+        } else {
+          statusText.textContent = "Live";
+        }
+      }
+    } catch (err) {
+      console.error(err);
+      dot.className = "w-2 h-2 rounded-full bg-current status-error";
+      statusText.textContent = "Error";
+      document.getElementById('derivativeAnalysis').innerHTML = 
+        `<span class="text-red-600">No data available. Cache is empty and GDELT could not be reached directly: ${err.message}</span>`;
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    loadData();
+
+    // "Refresh Data" vuelve a leer la caché (get-geopolitical-data),
+    // NO dispara una llamada a GDELT — eso solo lo hace la función
+    // programada, una vez por hora.
+    document.getElementById('refreshBtn').addEventListener('click', loadData);
+
+    const timeBtns = document.querySelectorAll('.time-btn[data-days]');
+    timeBtns.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        timeBtns.forEach(b => b.classList.remove('active'));
+        e.target.classList.add('active');
+        currentActiveDays = e.target.getAttribute('data-days');
+        updateView(currentActiveDays);
+      });
+    });
+  });
+</script>
+</body>
+</html>

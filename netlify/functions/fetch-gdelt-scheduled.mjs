@@ -23,11 +23,22 @@ import { getStore } from "@netlify/blobs";
 const GDELT_URL =
   "https://api.gdeltproject.org/api/v2/doc/doc?query=Iran&mode=timelinetone&timespan=6m&format=json";
 
-// Netlify impone un límite DURO de 30s de ejecución a las Scheduled
-// Functions (se corta a medias si te pasas). Como reintentamos una vez
-// si falla, cada intento tiene que caber en ese presupuesto junto con
-// la pausa entre intentos y el guardado en Blobs.
-const TIMEOUT_MS = 120000;
+// Netlify corta las Scheduled Functions a los 30s (límite duro, no
+// configurable). Con dos intentos + pausa + guardado en Blobs, 11s por
+// intento es lo máximo que cabe con margen. No hay forma de darle más:
+// si GDELT tarda más que esto, este camino no es viable y el frontend
+// tira de su plan B (ver index.html).
+const TIMEOUT_MS = 11000;
+
+// Algunos servicios rechazan o despriorizan peticiones sin User-Agent
+// de navegador. El fetch de Node manda uno genérico, así que lo
+// ponemos explícito por si acaso es parte del problema.
+const FETCH_OPTS = {
+  headers: {
+    "User-Agent": "Mozilla/5.0 (compatible; IranGeopoliticalMonitor/1.0)",
+    "Accept": "application/json",
+  },
+};
 
 function timeoutPromise(ms) {
   return new Promise((_, reject) => {
@@ -35,11 +46,15 @@ function timeoutPromise(ms) {
   });
 }
 
-// GDELT devuelve fechas como "YYYYMMDDHHMMSS" — las convertimos a ISO.
+// GDELT devuelve fechas como "20260820T000000Z" (con T y Z de por
+// medio). Nos quedamos solo con los dígitos antes de trocear, así
+// funciona tanto con ese formato como con "YYYYMMDDHHMMSS" pelado.
 function parseGdeltDate(raw) {
-  if (!raw || raw.length < 8) return null;
-  const y = raw.slice(0, 4), mo = raw.slice(4, 6), d = raw.slice(6, 8);
-  const hh = raw.slice(8, 10) || "00", mm = raw.slice(10, 12) || "00", ss = raw.slice(12, 14) || "00";
+  if (!raw) return null;
+  const digits = String(raw).replace(/\D/g, "");
+  if (digits.length < 8) return null;
+  const y = digits.slice(0, 4), mo = digits.slice(4, 6), d = digits.slice(6, 8);
+  const hh = digits.slice(8, 10) || "00", mm = digits.slice(10, 12) || "00", ss = digits.slice(12, 14) || "00";
   return `${y}-${mo}-${d}T${hh}:${mm}:${ss}Z`;
 }
 
@@ -56,7 +71,7 @@ function describeError(err) {
 }
 
 async function fetchGdeltOnce() {
-  const resp = await Promise.race([fetch(GDELT_URL), timeoutPromise(TIMEOUT_MS)]);
+  const resp = await Promise.race([fetch(GDELT_URL, FETCH_OPTS), timeoutPromise(TIMEOUT_MS)]);
   const rawText = await resp.text();
 
   if (!resp.ok) {
