@@ -24,11 +24,10 @@ const GDELT_URL =
   "https://api.gdeltproject.org/api/v2/doc/doc?query=Iran&mode=timelinetone&timespan=6m&format=json";
 
 // Netlify corta las Scheduled Functions a los 30s (límite duro, no
-// configurable). Con dos intentos + pausa + guardado en Blobs, 11s por
-// intento es lo máximo que cabe con margen. No hay forma de darle más:
-// si GDELT tarda más que esto, este camino no es viable y el frontend
-// tira de su plan B (ver index.html).
-const TIMEOUT_MS = 125000;
+// configurable). Le damos 25s a la conexión con GDELT y dejamos ~5s de
+// margen para leer la respuesta y guardarla en Blobs. No caben dos
+// intentos con este timeout, por eso no hay reintento.
+const TIMEOUT_MS = 25000;
 
 // Algunos servicios rechazan o despriorizan peticiones sin User-Agent
 // de navegador. El fetch de Node manda uno genérico, así que lo
@@ -56,10 +55,6 @@ function parseGdeltDate(raw) {
   const y = digits.slice(0, 4), mo = digits.slice(4, 6), d = digits.slice(6, 8);
   const hh = digits.slice(8, 10) || "00", mm = digits.slice(10, 12) || "00", ss = digits.slice(12, 14) || "00";
   return `${y}-${mo}-${d}T${hh}:${mm}:${ss}Z`;
-}
-
-function sleep(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 // Node envuelve el motivo real del fallo en err.cause cuando fetch()
@@ -99,6 +94,9 @@ async function fetchGdeltOnce() {
 
 export default async () => {
   const store = getStore("gdelt");
+
+  try {
+    const series = await fetchGdeltOnce();
 
     await store.setJSON("geopolitical-data", {
       series,
