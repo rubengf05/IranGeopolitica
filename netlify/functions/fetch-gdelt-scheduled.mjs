@@ -100,11 +100,6 @@ async function fetchGdeltOnce() {
 export default async () => {
   const store = getStore("gdelt");
 
-  try {
-    // GDELT falla de forma intermitente (503, conexión reiniciada...),
-    const series = await fetchGdeltOnce();
-    }
-
     await store.setJSON("geopolitical-data", {
       series,
       updatedAt: new Date().toISOString(),
