@@ -19,6 +19,7 @@
 // del día en curso a medida que se publican más artículos.
 
 import { getStore } from "@netlify/blobs";
+import { fetch as undiciFetch, Agent } from "undici";
 
 const GDELT_URL =
   "https://api.gdeltproject.org/api/v2/doc/doc?query=Iran&mode=timelinetone&timespan=6m&format=json";
@@ -66,7 +67,11 @@ function describeError(err) {
 }
 
 async function fetchGdeltOnce() {
-  const resp = await Promise.race([fetch(GDELT_URL, FETCH_OPTS), timeoutPromise(TIMEOUT_MS)]);
+  const agent = new Agent({ connectTimeout: TIMEOUT_MS });
+  const resp = await Promise.race([
+    undiciFetch(GDELT_URL, { ...FETCH_OPTS, dispatcher: agent }),
+    timeoutPromise(TIMEOUT_MS),
+  ]);
   const rawText = await resp.text();
 
   if (!resp.ok) {
