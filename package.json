@@ -4,6 +4,7 @@
   "private": true,
   "description": "Panel de tono medio de cobertura sobre Irán (GDELT), con caché servida vía Netlify Functions + Blobs.",
   "dependencies": {
-    "@netlify/blobs": "^8"
+    "@netlify/blobs": "^8",
+    "undici": "^6"
   }
 }
