@@ -27,7 +27,7 @@ const GDELT_URL =
 // Functions (se corta a medias si te pasas). Como reintentamos una vez
 // si falla, cada intento tiene que caber en ese presupuesto junto con
 // la pausa entre intentos y el guardado en Blobs.
-const TIMEOUT_MS = 10000;
+const TIMEOUT_MS = 120000;
 
 function timeoutPromise(ms) {
   return new Promise((_, reject) => {
