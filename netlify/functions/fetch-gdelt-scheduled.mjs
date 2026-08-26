@@ -24,9 +24,10 @@ const GDELT_URL =
   "https://api.gdeltproject.org/api/v2/doc/doc?query=Iran&mode=timelinetone&timespan=6m&format=json";
 
 // Netlify impone un límite DURO de 30s de ejecución a las Scheduled
-// Functions (se corta a medias si te pasas). Dejamos margen de sobra
-// para que dé tiempo a procesar la respuesta y guardarla en Blobs.
-const TIMEOUT_MS = 22000;
+// Functions (se corta a medias si te pasas). Como reintentamos una vez
+// si falla, cada intento tiene que caber en ese presupuesto junto con
+// la pausa entre intentos y el guardado en Blobs.
+const TIMEOUT_MS = 10000;
 
 function timeoutPromise(ms) {
   return new Promise((_, reject) => {
@@ -42,31 +43,58 @@ function parseGdeltDate(raw) {
   return `${y}-${mo}-${d}T${hh}:${mm}:${ss}Z`;
 }
 
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+// Node envuelve el motivo real del fallo en err.cause cuando fetch()
+// no llega ni a completar la conexión (DNS, TLS, conexión reiniciada).
+// err.message solo dice "fetch failed", así que sacamos el detalle real.
+function describeError(err) {
+  const causeMsg = err?.cause?.message || err?.cause?.code;
+  return causeMsg ? `${err.message} (causa: ${causeMsg})` : err.message;
+}
+
+async function fetchGdeltOnce() {
+  const resp = await Promise.race([fetch(GDELT_URL), timeoutPromise(TIMEOUT_MS)]);
+  const rawText = await resp.text();
+
+  if (!resp.ok) {
+    throw new Error(`HTTP ${resp.status} — ${rawText.slice(0, 200)}`);
+  }
+
+  let data;
+  try {
+    data = JSON.parse(rawText);
+  } catch {
+    throw new Error(`respuesta no es JSON válido: ${rawText.slice(0, 200)}`);
+  }
+
+  const rawSeries = (data.timeline && data.timeline[0] && data.timeline[0].data) || [];
+  const series = rawSeries
+    .map((p) => ({ date: parseGdeltDate(p.date), tone: Number(p.value) }))
+    .filter((p) => p.date !== null && !Number.isNaN(p.tone));
+
+  if (!series.length) {
+    throw new Error("GDELT respondió sin puntos de datos utilizables.");
+  }
+
+  return series;
+}
+
 export default async () => {
   const store = getStore("gdelt");
 
   try {
-    const resp = await Promise.race([fetch(GDELT_URL), timeoutPromise(TIMEOUT_MS)]);
-    const rawText = await resp.text();
-
-    if (!resp.ok) {
-      throw new Error(`HTTP ${resp.status} — ${rawText.slice(0, 200)}`);
-    }
-
-    let data;
+    // GDELT falla de forma intermitente (503, conexión reiniciada...),
+    // así que probamos una segunda vez antes de rendirnos del todo.
+    let series;
     try {
-      data = JSON.parse(rawText);
-    } catch {
-      throw new Error(`respuesta no es JSON válido: ${rawText.slice(0, 200)}`);
-    }
-
-    const rawSeries = (data.timeline && data.timeline[0] && data.timeline[0].data) || [];
-    const series = rawSeries
-      .map((p) => ({ date: parseGdeltDate(p.date), tone: Number(p.value) }))
-      .filter((p) => p.date !== null && !Number.isNaN(p.tone));
-
-    if (!series.length) {
-      throw new Error("GDELT respondió sin puntos de datos utilizables.");
+      series = await fetchGdeltOnce();
+    } catch (firstErr) {
+      console.warn(`[fetch-gdelt-scheduled] Primer intento falló (${describeError(firstErr)}), reintentando…`);
+      await sleep(3000);
+      series = await fetchGdeltOnce();
     }
 
     await store.setJSON("geopolitical-data", {
@@ -77,7 +105,7 @@ export default async () => {
 
     console.log(`[fetch-gdelt-scheduled] OK — ${series.length} puntos guardados.`);
   } catch (err) {
-    console.error(`[fetch-gdelt-scheduled] Fallo: ${err.message}`);
+    console.error(`[fetch-gdelt-scheduled] Fallo: ${describeError(err)}`);
 
     // No borramos el histórico si ya había uno válido: guardamos el
     // error junto a los últimos datos buenos, para que el frontend
@@ -93,7 +121,7 @@ export default async () => {
     await store.setJSON("geopolitical-data", {
       series: previous?.series ?? [],
       updatedAt: previous?.updatedAt ?? null,
-      lastError: { message: err.message, at: new Date().toISOString() },
+      lastError: { message: describeError(err), at: new Date().toISOString() },
       source: GDELT_URL,
     });
   }
