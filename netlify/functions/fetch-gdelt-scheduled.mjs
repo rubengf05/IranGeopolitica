@@ -23,7 +23,10 @@ import { getStore } from "@netlify/blobs";
 const GDELT_URL =
   "https://api.gdeltproject.org/api/v2/doc/doc?query=Iran&mode=timelinetone&timespan=6m&format=json";
 
-const TIMEOUT_MS = 45000;
+// Netlify impone un límite DURO de 30s de ejecución a las Scheduled
+// Functions (se corta a medias si te pasas). Dejamos margen de sobra
+// para que dé tiempo a procesar la respuesta y guardarla en Blobs.
+const TIMEOUT_MS = 22000;
 
 function timeoutPromise(ms) {
   return new Promise((_, reject) => {
