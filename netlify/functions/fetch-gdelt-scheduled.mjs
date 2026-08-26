@@ -28,7 +28,7 @@ const GDELT_URL =
 // intento es lo máximo que cabe con margen. No hay forma de darle más:
 // si GDELT tarda más que esto, este camino no es viable y el frontend
 // tira de su plan B (ver index.html).
-const TIMEOUT_MS = 11000;
+const TIMEOUT_MS = 125000;
 
 // Algunos servicios rechazan o despriorizan peticiones sin User-Agent
 // de navegador. El fetch de Node manda uno genérico, así que lo
@@ -102,14 +102,7 @@ export default async () => {
 
   try {
     // GDELT falla de forma intermitente (503, conexión reiniciada...),
-    // así que probamos una segunda vez antes de rendirnos del todo.
-    let series;
-    try {
-      series = await fetchGdeltOnce();
-    } catch (firstErr) {
-      console.warn(`[fetch-gdelt-scheduled] Primer intento falló (${describeError(firstErr)}), reintentando…`);
-      await sleep(3000);
-      series = await fetchGdeltOnce();
+    const series = await fetchGdeltOnce();
     }
 
     await store.setJSON("geopolitical-data", {
