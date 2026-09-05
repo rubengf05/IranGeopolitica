@@ -1,0 +1,43 @@
+name: Actualización diaria de datos GDELT
+
+# Sustituye a la antigua Netlify Scheduled Function (retirada junto con
+# netlify/functions y Netlify Blobs). Corre en los servidores de
+# GitHub, una vez al día, sin depender de ningún ordenador encendido:
+# ejecuta scripts/update-data.mjs, que llama a GDELT server-side y
+# reescribe el bloque de datos embebido en index.html, y comitea el
+# resultado si ha cambiado.
+
+on:
+  schedule:
+    - cron: '0 6 * * *' # cada día a las 06:00 UTC
+  workflow_dispatch: {} # permite lanzarlo a mano desde la pestaña "Actions"
+
+permissions:
+  contents: write
+
+jobs:
+  update-data:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Ejecutar scripts/update-data.mjs
+        run: node scripts/update-data.mjs
+
+      - name: Commit y push si index.html ha cambiado
+        run: |
+          if git diff --quiet -- index.html; then
+            echo "Sin cambios en index.html — nada que commitear."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "chore(data): actualización diaria GDELT $(date -u +'%Y-%m-%d')"
+          git push
