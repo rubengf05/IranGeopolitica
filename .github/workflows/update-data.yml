@@ -10,14 +10,24 @@ name: Actualización diaria de datos GDELT
 on:
   schedule:
     - cron: '0 6 * * *' # cada día a las 06:00 UTC
+    # Segundo intento diario: GDELT limita/corta a menudo las IPs de los
+    # runners (429 / Connect Timeout). Si el primero ya funcionó, este solo
+    # refresca los últimos días (el script es append-only e idempotente).
+    - cron: '0 15 * * *'
   workflow_dispatch: {} # permite lanzarlo a mano desde la pestaña "Actions"
 
 permissions:
   contents: write
 
+# Evita dos ejecuciones simultáneas escribiendo index.html a la vez.
+concurrency:
+  group: update-data
+  cancel-in-progress: false
+
 jobs:
   update-data:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -27,10 +37,17 @@ jobs:
         with:
           node-version: '22'
 
+      # Sale con código 1 (run en rojo) si la validación falla, si los datos
+      # llevan más de 48 h sin refrescarse o si GDELT responde sin días
+      # recientes. Los fallos puntuales de GDELT solo dejan un aviso amarillo.
       - name: Ejecutar scripts/update-data.mjs
+        id: update
         run: node scripts/update-data.mjs
 
+      # always(): aunque el paso anterior falle, se comitea stale:true y
+      # lastError para que el sitio lo refleje. El run sigue saliendo en rojo.
       - name: Commit y push si index.html ha cambiado
+        if: always() && steps.update.outcome != 'skipped'
         run: |
           if git diff --quiet -- index.html; then
             echo "Sin cambios en index.html — nada que commitear."
