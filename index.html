@@ -284,6 +284,10 @@
         </tbody>
       </table>
     </div>
+    <!-- Instantánea editorial fija: estos 12 valores se escribieron a mano y NO se recalculan a partir de tone-data-json. -->
+    <p class="text-xs text-gray-500 mt-2 italic font-sans">
+      Fixed editorial snapshot: values were entered by hand. This table is not recalculated from the live series above; GDELT may revise historical tone retroactively.
+    </p>
   </section>
 
   <!-- FOOTER -->
@@ -295,6 +299,82 @@
 <script type="application/json" id="tone-data-json">
 {
   "series": [
+    {
+      "date": "2026-03-10T00:00:00Z",
+      "tone": -3.1919
+    },
+    {
+      "date": "2026-03-11T00:00:00Z",
+      "tone": -3.4152
+    },
+    {
+      "date": "2026-03-12T00:00:00Z",
+      "tone": -3.5207
+    },
+    {
+      "date": "2026-03-13T00:00:00Z",
+      "tone": -3.5103
+    },
+    {
+      "date": "2026-03-14T00:00:00Z",
+      "tone": -3.5213
+    },
+    {
+      "date": "2026-03-15T00:00:00Z",
+      "tone": -3.3082
+    },
+    {
+      "date": "2026-03-16T00:00:00Z",
+      "tone": -2.8644
+    },
+    {
+      "date": "2026-03-17T00:00:00Z",
+      "tone": -3.2638
+    },
+    {
+      "date": "2026-03-18T00:00:00Z",
+      "tone": -3.456
+    },
+    {
+      "date": "2026-03-19T00:00:00Z",
+      "tone": -3.6499
+    },
+    {
+      "date": "2026-03-20T00:00:00Z",
+      "tone": -3.3707
+    },
+    {
+      "date": "2026-03-21T00:00:00Z",
+      "tone": -3.3802
+    },
+    {
+      "date": "2026-03-22T00:00:00Z",
+      "tone": -4.0472
+    },
+    {
+      "date": "2026-03-23T00:00:00Z",
+      "tone": -3.3484
+    },
+    {
+      "date": "2026-03-24T00:00:00Z",
+      "tone": -2.8867
+    },
+    {
+      "date": "2026-03-25T00:00:00Z",
+      "tone": -2.8799
+    },
+    {
+      "date": "2026-03-26T00:00:00Z",
+      "tone": -3.1241
+    },
+    {
+      "date": "2026-03-27T00:00:00Z",
+      "tone": -3.1624
+    },
+    {
+      "date": "2026-03-28T00:00:00Z",
+      "tone": -3.5802
+    },
     {
       "date": "2026-03-29T00:00:00Z",
       "tone": -3.6101
@@ -978,7 +1058,35 @@
   ],
   "lastUpdated": "2026-09-24T11:26:31.881Z",
   "stale": false,
-  "source": "https://api.gdeltproject.org/api/v2/doc/doc?query=Iran&mode=timelinetone&timespan=6m&format=json"
+  "source": "https://api.gdeltproject.org/api/v2/doc/doc?query=Iran&mode=timelinetone&timespan=6m&format=json",
+  "backfill": {
+    "fromGitHistory": 19,
+    "range": [
+      "2026-03-10",
+      "2026-03-28"
+    ],
+    "at": "2026-09-24T18:24:43.227Z"
+  },
+  "knownGaps": [
+    {
+      "from": "2026-07-01",
+      "to": "2026-07-04",
+      "days": 4,
+      "reason": "gdelt-no-data",
+      "detectedAt": "2026-09-24T18:24:53.535Z",
+      "lastCheckedAt": null,
+      "note": "Ausente en todas las versiones de index.html desde el 5 sept 2026: GDELT no devolvió estos días."
+    },
+    {
+      "from": "2026-09-14",
+      "to": "2026-09-19",
+      "days": 6,
+      "reason": "gdelt-no-data",
+      "detectedAt": "2026-09-24T18:24:53.535Z",
+      "lastCheckedAt": null,
+      "note": "Ausente en todas las versiones de index.html desde el 5 sept 2026 (runs del 14 y 16 sept terminaron OK con último día 13 sept; el del 23 sept saltó directamente al 20): GDELT no devolvió estos días."
+    }
+  ]
 }
 </script>
 
