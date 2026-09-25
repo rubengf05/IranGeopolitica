@@ -1101,7 +1101,7 @@
     }
   ],
   "lastUpdated": "2026-09-25T11:31:29.580Z",
-  "stale": false,
+  "stale": true,
   "method": "append-only",
   "warStart": "2026-02-28",
   "source": "GDELT DOC 2.0 (query=Iran, mode=timelinetone). Acumulado incremental: cada ejecución diaria pide solo una ventana corta con startdatetime/enddatetime y la fusiona por fecha con la serie ya guardada; nunca se reescribe el histórico entero.",
@@ -1131,7 +1131,15 @@
       "lastCheckedAt": "2026-09-25T11:31:29.580Z",
       "note": "Ausente en todas las versiones de index.html desde el 5 sept 2026 (runs del 14 y 16 sept terminaron OK con último día 13 sept; el del 23 sept saltó directamente al 20): GDELT no devolvió estos días."
     }
-  ]
+  ],
+  "lastError": {
+    "message": "fetch failed (causa: Connect Timeout Error (attempted address: api.gdeltproject.org:443, timeout: 10000ms))",
+    "at": "2026-09-25T18:59:28.369Z",
+    "window": {
+      "from": "2026-09-14",
+      "to": "2026-09-25"
+    }
+  }
 }
 </script>
 
