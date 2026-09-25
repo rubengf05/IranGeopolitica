@@ -300,6 +300,46 @@
 {
   "series": [
     {
+      "date": "2026-02-28T00:00:00Z",
+      "tone": -3.5828
+    },
+    {
+      "date": "2026-03-01T00:00:00Z",
+      "tone": -4.009
+    },
+    {
+      "date": "2026-03-02T00:00:00Z",
+      "tone": -3.707
+    },
+    {
+      "date": "2026-03-03T00:00:00Z",
+      "tone": -3.4113
+    },
+    {
+      "date": "2026-03-04T00:00:00Z",
+      "tone": -3.3552
+    },
+    {
+      "date": "2026-03-05T00:00:00Z",
+      "tone": -3.4024
+    },
+    {
+      "date": "2026-03-06T00:00:00Z",
+      "tone": -3.2287
+    },
+    {
+      "date": "2026-03-07T00:00:00Z",
+      "tone": -3.4403
+    },
+    {
+      "date": "2026-03-08T00:00:00Z",
+      "tone": -3.4746
+    },
+    {
+      "date": "2026-03-09T00:00:00Z",
+      "tone": -3.2974
+    },
+    {
       "date": "2026-03-10T00:00:00Z",
       "tone": -3.1919
     },
@@ -1053,19 +1093,24 @@
     },
     {
       "date": "2026-09-24T00:00:00Z",
-      "tone": -2.1238
+      "tone": -2.4399
+    },
+    {
+      "date": "2026-09-25T00:00:00Z",
+      "tone": -2.3608
     }
   ],
-  "lastUpdated": "2026-09-24T11:26:31.881Z",
+  "lastUpdated": "2026-09-25T11:31:29.580Z",
   "stale": false,
-  "source": "https://api.gdeltproject.org/api/v2/doc/doc?query=Iran&mode=timelinetone&timespan=6m&format=json",
-  "backfill": {
-    "fromGitHistory": 19,
-    "range": [
-      "2026-03-10",
-      "2026-03-28"
-    ],
-    "at": "2026-09-24T18:24:43.227Z"
+  "method": "append-only",
+  "warStart": "2026-02-28",
+  "source": "GDELT DOC 2.0 (query=Iran, mode=timelinetone). Acumulado incremental: cada ejecución diaria pide solo una ventana corta con startdatetime/enddatetime y la fusiona por fecha con la serie ya guardada; nunca se reescribe el histórico entero.",
+  "lastFetch": {
+    "from": "2026-02-28",
+    "to": "2026-09-25",
+    "points": 200,
+    "added": 11,
+    "revised": 1
   },
   "knownGaps": [
     {
@@ -1074,7 +1119,7 @@
       "days": 4,
       "reason": "gdelt-no-data",
       "detectedAt": "2026-09-24T18:24:53.535Z",
-      "lastCheckedAt": null,
+      "lastCheckedAt": "2026-09-25T11:31:29.580Z",
       "note": "Ausente en todas las versiones de index.html desde el 5 sept 2026: GDELT no devolvió estos días."
     },
     {
@@ -1083,7 +1128,7 @@
       "days": 6,
       "reason": "gdelt-no-data",
       "detectedAt": "2026-09-24T18:24:53.535Z",
-      "lastCheckedAt": null,
+      "lastCheckedAt": "2026-09-25T11:31:29.580Z",
       "note": "Ausente en todas las versiones de index.html desde el 5 sept 2026 (runs del 14 y 16 sept terminaron OK con último día 13 sept; el del 23 sept saltó directamente al 20): GDELT no devolvió estos días."
     }
   ]
