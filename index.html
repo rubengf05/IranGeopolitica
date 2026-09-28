@@ -56,7 +56,7 @@
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
       <div>
         <h1 class="text-2xl sm:text-3xl tracking-tight">Iran Geopolitical Monitor</h1>
-        <p class="text-sm text-gray-500 mt-1 italic">Media tone analysis & quantitative benchmarking · GDELT 2.0</p>
+        <p class="text-sm text-gray-500 mt-1 italic">Media tone analysis, war-effect decomposition & benchmarking · GDELT 2.0</p>
       </div>
       <div class="flex flex-wrap items-center gap-3 text-xs font-sans">
         <span id="statusBadgeContainer" class="flex items-center gap-1.5 px-3 py-1.5 rounded-sm bg-gray-50 border border-ft text-gray-700">
@@ -74,41 +74,110 @@
 <!-- MAIN CONTENT -->
 <main class="max-w-3xl mx-auto px-4 sm:px-6 py-8 space-y-10">
 
-  <!-- DYNAMIC CHART & ANALYSIS SECTION -->
-  <section class="flex flex-col items-center">
-    <div class="w-full mb-4 flex flex-col sm:flex-row justify-between items-end gap-4 border-b border-ft pb-2">
-      <div>
-        <h2 class="text-xl mb-1">Current Geopolitical Tone (AvgTone)</h2>
-        <p class="text-xs text-gray-500 max-w-md">
-          Dashed lines represent ±1 Standard Deviation calculated dynamically over the selected timeframe.
-        </p>
-      </div>
-      
-      <!-- Time Range Selector -->
-      <div class="flex shadow-sm" id="timeControls">
-        <button class="time-btn" data-days="7">7 Days</button>
-        <button class="time-btn active" data-days="30">1 Month</button>
-        <button class="time-btn" data-days="all">War Total</button>
-      </div>
+  <!-- Time Range Selector: applies to every chart on the page -->
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-ft pb-3">
+    <p class="text-xs text-gray-500 font-sans">Timeframe for every chart and statistic on this page</p>
+    <div class="flex shadow-sm" id="timeControls">
+      <button class="time-btn" data-days="7">7 Days</button>
+      <button class="time-btn active" data-days="30">1 Month</button>
+      <button class="time-btn" data-days="all">War Total</button>
     </div>
-    
-    <div class="w-full bg-white border border-ft p-4 sm:p-6 rounded-sm shadow-sm mb-6 min-h-[220px] flex items-center justify-center">
-      <canvas id="iranChart" height="120"></canvas>
+  </div>
+
+  <!-- 1. HEADLINE TONE -->
+  <section class="flex flex-col items-center">
+    <div class="w-full mb-4 border-b border-ft pb-2">
+      <h2 class="text-xl mb-1">Current Geopolitical Tone (AvgTone)</h2>
+      <p class="text-xs text-gray-500 max-w-md">
+        All coverage mentioning Iran. Dashed lines represent ±1 Standard Deviation calculated dynamically over the selected timeframe.
+      </p>
     </div>
 
-    <!-- Quantitative Analysis Box -->
+    <div class="w-full bg-white border border-ft p-3 sm:p-6 rounded-sm shadow-sm mb-6">
+      <div class="relative w-full h-64 sm:h-80"><canvas id="iranChart" role="img" aria-label="Daily average tone of all coverage mentioning Iran"></canvas></div>
+    </div>
+
     <div class="w-full bg-ft-box border border-ft p-6 rounded-sm text-sm">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-3 gap-2 border-b border-gray-300 pb-2">
         <h3 class="font-bold uppercase tracking-wide text-xs font-sans text-gray-600">Automated Assessment <span id="assessmentPeriod" class="normal-case font-normal text-gray-500">(1 Month Baseline)</span></h3>
-        <span id="statusBadge" class="font-bold font-sans text-[11px] px-2 py-1 rounded-sm border bg-white tracking-wider">
-          CALCULATING…
-        </span>
+        <span id="statusBadge" class="font-bold font-sans text-[11px] px-2 py-1 rounded-sm border bg-white tracking-wider">CALCULATING…</span>
       </div>
-      <div id="derivativeAnalysis" class="leading-relaxed text-[15px]">
-        Loading geopolitical data from cache…
-      </div>
+      <div id="derivativeAnalysis" class="leading-relaxed text-[15px]">Loading geopolitical data…</div>
     </div>
   </section>
+
+  <!-- 2. WAR EFFECT DECOMPOSITION -->
+  <section id="warEffect">
+    <div class="mb-4 border-b border-black pb-2">
+      <h2 class="text-xl">Isolating the War Effect</h2>
+      <p class="text-sm text-gray-500 mt-1 italic">
+        Iran coverage split into three non-overlapping groups. Is the headline tone moving because the war itself is covered differently, or because the mix of stories has changed?
+      </p>
+    </div>
+
+    <div id="warPending" class="hidden bg-gray-50 border border-ft p-4 rounded-sm text-sm font-sans text-gray-600"></div>
+
+    <div id="warContent" class="space-y-6">
+      <div>
+        <h3 class="text-base mb-1">Tone by coverage type</h3>
+        <p class="text-xs text-gray-500 mb-2 font-sans">Daily AvgTone. Higher = less negative coverage.</p>
+        <div class="bg-white border border-ft p-3 sm:p-6 rounded-sm shadow-sm">
+          <div id="groupToneChartLegend" class="flex flex-wrap gap-x-4 gap-y-1 mb-3 text-xs font-sans text-gray-700" aria-hidden="true"></div>
+          <div class="relative w-full h-72 sm:h-80"><canvas id="groupToneChart" role="img" aria-label="Daily tone of diplomacy, military and other Iran coverage"></canvas></div>
+        </div>
+      </div>
+
+      <div>
+        <h3 class="text-base mb-1">Share of Iran coverage</h3>
+        <p class="text-xs text-gray-500 mb-2 font-sans">Percentage of daily articles mentioning Iran that fall in each group.</p>
+        <div class="bg-white border border-ft p-3 sm:p-6 rounded-sm shadow-sm">
+          <div id="shareChartLegend" class="flex flex-wrap gap-x-4 gap-y-1 mb-3 text-xs font-sans text-gray-700" aria-hidden="true"></div>
+          <div class="relative w-full h-64 sm:h-72"><canvas id="shareChart" role="img" aria-label="Daily share of Iran coverage by group"></canvas></div>
+        </div>
+      </div>
+
+      <div class="bg-ft-box border border-ft p-6 rounded-sm text-sm">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-3 gap-2 border-b border-gray-300 pb-2">
+          <h3 class="font-bold uppercase tracking-wide text-xs font-sans text-gray-600">Why did the tone move? <span id="decompPeriod" class="normal-case font-normal text-gray-500"></span></h3>
+        </div>
+        <div id="decompText" class="leading-relaxed text-[15px] mb-4"></div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-xs font-sans border-collapse" id="decompTable">
+            <thead class="border-b border-gray-400 text-gray-600 uppercase">
+              <tr>
+                <th class="py-2 pr-2 text-left font-semibold">Group</th>
+                <th class="py-2 px-2 text-right font-semibold whitespace-nowrap">Share</th>
+                <th class="py-2 px-2 text-right font-semibold whitespace-nowrap">Tone</th>
+                <th class="py-2 px-2 text-right font-semibold whitespace-nowrap" title="Change in the group's own tone, weighted by its average share">Tone effect</th>
+                <th class="py-2 pl-2 text-right font-semibold whitespace-nowrap" title="Change in the group's weight, times how far its tone sits from the overall average">Mix effect</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-300"></tbody>
+            <tfoot class="border-t border-gray-400 font-semibold"></tfoot>
+          </table>
+        </div>
+        <p id="decompNote" class="text-[11px] text-gray-500 mt-3 font-sans"></p>
+      </div>
+
+      <details class="text-sm font-sans">
+        <summary class="cursor-pointer text-gray-600 hover:text-black">Daily data table</summary>
+        <div class="overflow-x-auto mt-2 max-h-80 overflow-y-auto border border-ft rounded-sm">
+          <table class="w-full text-xs border-collapse" id="dailyTable"></table>
+        </div>
+      </details>
+
+      <details class="text-sm">
+        <summary class="cursor-pointer font-sans text-gray-600 hover:text-black">Methodology &amp; limitations</summary>
+        <div class="mt-3 space-y-3 text-[14px] leading-relaxed text-gray-800">
+          <p>Each group is a GDELT DOC 2.0 keyword query. Groups are applied in priority order and each one excludes the keywords of the groups before it, so every article falls in exactly one group. An article mentioning both negotiations and missiles counts as <em>diplomacy</em>. "Everything else" is not queried: it is derived as <code>total − groups</code>, for both volume and volume‑weighted tone.</p>
+          <div id="queryList" class="space-y-2 text-xs font-sans"></div>
+          <p>The decomposition compares the selected timeframe with the preceding one of equal length (War Total: first 30 days vs last 30 days) using volume‑weighted averages, so its totals can differ slightly from the simple daily mean in the chart above. It is exact: tone effect + mix effect = total change.</p>
+          <p><strong>Limitations.</strong> GDELT scores the tone of the whole article, so a piece that mixes the war with other topics cannot be split. Keyword groups depend on the chosen words: an unlucky keyword can pull unrelated stories into a group. Days where any series is missing are left out of the group charts.</p>
+        </div>
+      </details>
+    </div>
+  </section>
+
 
 <!-- STATIC HISTORICAL BENCHMARKS SECTION -->
   <section>
@@ -284,832 +353,117 @@
         </tbody>
       </table>
     </div>
-    <!-- Instantánea editorial fija: estos 12 valores se escribieron a mano y NO se recalculan a partir de tone-data-json. -->
+    <!-- Instantánea editorial fija: estos 12 valores se escribieron a mano y NO se recalculan a partir de data/. -->
     <p class="text-xs text-gray-500 mt-2 italic font-sans">
       Fixed editorial snapshot: values were entered by hand. This table is not recalculated from the live series above; GDELT may revise historical tone retroactively.
     </p>
   </section>
 
+
   <!-- FOOTER -->
   <footer class="text-xs text-gray-500 border-t border-ft pt-6 pb-12 font-sans text-center mt-8">
-    <p>Data Source: GDELT Project 2.0 DOC API. AvgTone is calculated as the average lexical sentiment of articles mentioning Iran.</p>
+    <p>Data Source: GDELT Project 2.0 DOC API. AvgTone is the average lexical sentiment of articles; group series use keyword queries (see Methodology).</p>
   </footer>
 </main>
 
-<script type="application/json" id="tone-data-json">
-{
-  "series": [
-    {
-      "date": "2026-03-10T00:00:00Z",
-      "tone": -3.1919
-    },
-    {
-      "date": "2026-03-11T00:00:00Z",
-      "tone": -3.4152
-    },
-    {
-      "date": "2026-03-12T00:00:00Z",
-      "tone": -3.5207
-    },
-    {
-      "date": "2026-03-13T00:00:00Z",
-      "tone": -3.5103
-    },
-    {
-      "date": "2026-03-14T00:00:00Z",
-      "tone": -3.5213
-    },
-    {
-      "date": "2026-03-15T00:00:00Z",
-      "tone": -3.3082
-    },
-    {
-      "date": "2026-03-16T00:00:00Z",
-      "tone": -2.8644
-    },
-    {
-      "date": "2026-03-17T00:00:00Z",
-      "tone": -3.2638
-    },
-    {
-      "date": "2026-03-18T00:00:00Z",
-      "tone": -3.456
-    },
-    {
-      "date": "2026-03-19T00:00:00Z",
-      "tone": -3.6499
-    },
-    {
-      "date": "2026-03-20T00:00:00Z",
-      "tone": -3.3707
-    },
-    {
-      "date": "2026-03-21T00:00:00Z",
-      "tone": -3.3802
-    },
-    {
-      "date": "2026-03-22T00:00:00Z",
-      "tone": -4.0472
-    },
-    {
-      "date": "2026-03-23T00:00:00Z",
-      "tone": -3.3484
-    },
-    {
-      "date": "2026-03-24T00:00:00Z",
-      "tone": -2.8867
-    },
-    {
-      "date": "2026-03-25T00:00:00Z",
-      "tone": -2.8799
-    },
-    {
-      "date": "2026-03-26T00:00:00Z",
-      "tone": -3.1241
-    },
-    {
-      "date": "2026-03-27T00:00:00Z",
-      "tone": -3.1624
-    },
-    {
-      "date": "2026-03-28T00:00:00Z",
-      "tone": -3.5802
-    },
-    {
-      "date": "2026-03-29T00:00:00Z",
-      "tone": -3.6101
-    },
-    {
-      "date": "2026-03-30T00:00:00Z",
-      "tone": -3.2475
-    },
-    {
-      "date": "2026-03-31T00:00:00Z",
-      "tone": -3.0999
-    },
-    {
-      "date": "2026-04-01T00:00:00Z",
-      "tone": -2.8029
-    },
-    {
-      "date": "2026-04-02T00:00:00Z",
-      "tone": -2.9841
-    },
-    {
-      "date": "2026-04-03T00:00:00Z",
-      "tone": -2.9794
-    },
-    {
-      "date": "2026-04-04T00:00:00Z",
-      "tone": -3.6053
-    },
-    {
-      "date": "2026-04-05T00:00:00Z",
-      "tone": -3.2281
-    },
-    {
-      "date": "2026-04-06T00:00:00Z",
-      "tone": -3.5721
-    },
-    {
-      "date": "2026-04-07T00:00:00Z",
-      "tone": -3.7552
-    },
-    {
-      "date": "2026-04-08T00:00:00Z",
-      "tone": -2.3401
-    },
-    {
-      "date": "2026-04-09T00:00:00Z",
-      "tone": -2.9116
-    },
-    {
-      "date": "2026-04-10T00:00:00Z",
-      "tone": -2.819
-    },
-    {
-      "date": "2026-04-11T00:00:00Z",
-      "tone": -2.0836
-    },
-    {
-      "date": "2026-04-12T00:00:00Z",
-      "tone": -2.3051
-    },
-    {
-      "date": "2026-04-13T00:00:00Z",
-      "tone": -3.1864
-    },
-    {
-      "date": "2026-04-14T00:00:00Z",
-      "tone": -2.7986
-    },
-    {
-      "date": "2026-04-15T00:00:00Z",
-      "tone": -2.4868
-    },
-    {
-      "date": "2026-04-16T00:00:00Z",
-      "tone": -2.5012
-    },
-    {
-      "date": "2026-04-17T00:00:00Z",
-      "tone": -1.9585
-    },
-    {
-      "date": "2026-04-18T00:00:00Z",
-      "tone": -2.4113
-    },
-    {
-      "date": "2026-04-19T00:00:00Z",
-      "tone": -3.0549
-    },
-    {
-      "date": "2026-04-20T00:00:00Z",
-      "tone": -3.1117
-    },
-    {
-      "date": "2026-04-21T00:00:00Z",
-      "tone": -2.9973
-    },
-    {
-      "date": "2026-04-22T00:00:00Z",
-      "tone": -3.0315
-    },
-    {
-      "date": "2026-04-23T00:00:00Z",
-      "tone": -2.8743
-    },
-    {
-      "date": "2026-04-24T00:00:00Z",
-      "tone": -2.4279
-    },
-    {
-      "date": "2026-04-25T00:00:00Z",
-      "tone": -2.4824
-    },
-    {
-      "date": "2026-04-26T00:00:00Z",
-      "tone": -2.879
-    },
-    {
-      "date": "2026-04-27T00:00:00Z",
-      "tone": -2.2205
-    },
-    {
-      "date": "2026-04-28T00:00:00Z",
-      "tone": -2.3594
-    },
-    {
-      "date": "2026-04-29T00:00:00Z",
-      "tone": -2.8328
-    },
-    {
-      "date": "2026-04-30T00:00:00Z",
-      "tone": -2.7801
-    },
-    {
-      "date": "2026-05-01T00:00:00Z",
-      "tone": -2.6714
-    },
-    {
-      "date": "2026-05-02T00:00:00Z",
-      "tone": -3.1119
-    },
-    {
-      "date": "2026-05-03T00:00:00Z",
-      "tone": -2.7465
-    },
-    {
-      "date": "2026-05-04T00:00:00Z",
-      "tone": -2.8655
-    },
-    {
-      "date": "2026-05-05T00:00:00Z",
-      "tone": -3.0111
-    },
-    {
-      "date": "2026-05-06T00:00:00Z",
-      "tone": -2.088
-    },
-    {
-      "date": "2026-05-07T00:00:00Z",
-      "tone": -2.0467
-    },
-    {
-      "date": "2026-05-08T00:00:00Z",
-      "tone": -2.9832
-    },
-    {
-      "date": "2026-05-09T00:00:00Z",
-      "tone": -2.5276
-    },
-    {
-      "date": "2026-05-10T00:00:00Z",
-      "tone": -2.8379
-    },
-    {
-      "date": "2026-05-11T00:00:00Z",
-      "tone": -2.9012
-    },
-    {
-      "date": "2026-05-12T00:00:00Z",
-      "tone": -2.8315
-    },
-    {
-      "date": "2026-05-13T00:00:00Z",
-      "tone": -2.2406
-    },
-    {
-      "date": "2026-05-14T00:00:00Z",
-      "tone": -1.7632
-    },
-    {
-      "date": "2026-05-15T00:00:00Z",
-      "tone": -1.8214
-    },
-    {
-      "date": "2026-05-16T00:00:00Z",
-      "tone": -2.4529
-    },
-    {
-      "date": "2026-05-17T00:00:00Z",
-      "tone": -3.0198
-    },
-    {
-      "date": "2026-05-18T00:00:00Z",
-      "tone": -3.0125
-    },
-    {
-      "date": "2026-05-19T00:00:00Z",
-      "tone": -2.4516
-    },
-    {
-      "date": "2026-05-20T00:00:00Z",
-      "tone": -2.358
-    },
-    {
-      "date": "2026-05-21T00:00:00Z",
-      "tone": -2.0922
-    },
-    {
-      "date": "2026-05-22T00:00:00Z",
-      "tone": -1.94
-    },
-    {
-      "date": "2026-05-23T00:00:00Z",
-      "tone": -1.7682
-    },
-    {
-      "date": "2026-05-24T00:00:00Z",
-      "tone": -1.3365
-    },
-    {
-      "date": "2026-05-25T00:00:00Z",
-      "tone": -1.0694
-    },
-    {
-      "date": "2026-05-26T00:00:00Z",
-      "tone": -1.9903
-    },
-    {
-      "date": "2026-05-27T00:00:00Z",
-      "tone": -2.1748
-    },
-    {
-      "date": "2026-05-28T00:00:00Z",
-      "tone": -2.7853
-    },
-    {
-      "date": "2026-05-29T00:00:00Z",
-      "tone": -1.8649
-    },
-    {
-      "date": "2026-05-30T00:00:00Z",
-      "tone": -1.8813
-    },
-    {
-      "date": "2026-05-31T00:00:00Z",
-      "tone": -2.0904
-    },
-    {
-      "date": "2026-06-01T00:00:00Z",
-      "tone": -2.9868
-    },
-    {
-      "date": "2026-06-02T00:00:00Z",
-      "tone": -2.9409
-    },
-    {
-      "date": "2026-06-03T00:00:00Z",
-      "tone": -3.2205
-    },
-    {
-      "date": "2026-06-04T00:00:00Z",
-      "tone": -2.8074
-    },
-    {
-      "date": "2026-06-05T00:00:00Z",
-      "tone": -2.3596
-    },
-    {
-      "date": "2026-06-06T00:00:00Z",
-      "tone": -3.1931
-    },
-    {
-      "date": "2026-06-07T00:00:00Z",
-      "tone": -3.109
-    },
-    {
-      "date": "2026-06-08T00:00:00Z",
-      "tone": -3.7801
-    },
-    {
-      "date": "2026-06-09T00:00:00Z",
-      "tone": -2.6663
-    },
-    {
-      "date": "2026-06-10T00:00:00Z",
-      "tone": -3.0562
-    },
-    {
-      "date": "2026-06-11T00:00:00Z",
-      "tone": -2.9078
-    },
-    {
-      "date": "2026-06-12T00:00:00Z",
-      "tone": -1.3815
-    },
-    {
-      "date": "2026-06-13T00:00:00Z",
-      "tone": -1.3569
-    },
-    {
-      "date": "2026-06-14T00:00:00Z",
-      "tone": -1.2985
-    },
-    {
-      "date": "2026-06-15T00:00:00Z",
-      "tone": -0.2977
-    },
-    {
-      "date": "2026-06-16T00:00:00Z",
-      "tone": -0.9996
-    },
-    {
-      "date": "2026-06-17T00:00:00Z",
-      "tone": -0.8514
-    },
-    {
-      "date": "2026-06-18T00:00:00Z",
-      "tone": -0.7086
-    },
-    {
-      "date": "2026-06-19T00:00:00Z",
-      "tone": -2.0217
-    },
-    {
-      "date": "2026-06-20T00:00:00Z",
-      "tone": -2.1983
-    },
-    {
-      "date": "2026-06-21T00:00:00Z",
-      "tone": -1.7066
-    },
-    {
-      "date": "2026-06-22T00:00:00Z",
-      "tone": -1.0685
-    },
-    {
-      "date": "2026-06-23T00:00:00Z",
-      "tone": -1.2633
-    },
-    {
-      "date": "2026-06-24T00:00:00Z",
-      "tone": -1.4921
-    },
-    {
-      "date": "2026-06-25T00:00:00Z",
-      "tone": -1.6297
-    },
-    {
-      "date": "2026-06-26T00:00:00Z",
-      "tone": -1.9828
-    },
-    {
-      "date": "2026-06-27T00:00:00Z",
-      "tone": -2.5058
-    },
-    {
-      "date": "2026-06-28T00:00:00Z",
-      "tone": -3.4622
-    },
-    {
-      "date": "2026-06-29T00:00:00Z",
-      "tone": -2.1186
-    },
-    {
-      "date": "2026-06-30T00:00:00Z",
-      "tone": -1.5492
-    },
-    {
-      "date": "2026-07-05T00:00:00Z",
-      "tone": -1.9361
-    },
-    {
-      "date": "2026-07-06T00:00:00Z",
-      "tone": -1.7682
-    },
-    {
-      "date": "2026-07-07T00:00:00Z",
-      "tone": -2.3991
-    },
-    {
-      "date": "2026-07-08T00:00:00Z",
-      "tone": -3.0301
-    },
-    {
-      "date": "2026-07-09T00:00:00Z",
-      "tone": -3.0767
-    },
-    {
-      "date": "2026-07-10T00:00:00Z",
-      "tone": -2.7337
-    },
-    {
-      "date": "2026-07-11T00:00:00Z",
-      "tone": -3.0694
-    },
-    {
-      "date": "2026-07-12T00:00:00Z",
-      "tone": -2.9984
-    },
-    {
-      "date": "2026-07-13T00:00:00Z",
-      "tone": -3.2245
-    },
-    {
-      "date": "2026-07-14T00:00:00Z",
-      "tone": -3.0446
-    },
-    {
-      "date": "2026-07-15T00:00:00Z",
-      "tone": -3.1514
-    },
-    {
-      "date": "2026-07-16T00:00:00Z",
-      "tone": -3.0689
-    },
-    {
-      "date": "2026-07-17T00:00:00Z",
-      "tone": -3.2961
-    },
-    {
-      "date": "2026-07-18T00:00:00Z",
-      "tone": -4.2716
-    },
-    {
-      "date": "2026-07-19T00:00:00Z",
-      "tone": -4.2384
-    },
-    {
-      "date": "2026-07-20T00:00:00Z",
-      "tone": -3.5911
-    },
-    {
-      "date": "2026-07-21T00:00:00Z",
-      "tone": -3.2465
-    },
-    {
-      "date": "2026-07-22T00:00:00Z",
-      "tone": -3.1398
-    },
-    {
-      "date": "2026-07-23T00:00:00Z",
-      "tone": -2.7969
-    },
-    {
-      "date": "2026-07-24T00:00:00Z",
-      "tone": -3.288
-    },
-    {
-      "date": "2026-07-25T00:00:00Z",
-      "tone": -2.8899
-    },
-    {
-      "date": "2026-07-26T00:00:00Z",
-      "tone": -3.3092
-    },
-    {
-      "date": "2026-07-27T00:00:00Z",
-      "tone": -2.7974
-    },
-    {
-      "date": "2026-07-28T00:00:00Z",
-      "tone": -2.3629
-    },
-    {
-      "date": "2026-07-29T00:00:00Z",
-      "tone": -2.979
-    },
-    {
-      "date": "2026-07-30T00:00:00Z",
-      "tone": -3.109
-    },
-    {
-      "date": "2026-07-31T00:00:00Z",
-      "tone": -2.7151
-    },
-    {
-      "date": "2026-08-01T00:00:00Z",
-      "tone": -3.343
-    },
-    {
-      "date": "2026-08-02T00:00:00Z",
-      "tone": -2.5777
-    },
-    {
-      "date": "2026-08-03T00:00:00Z",
-      "tone": -2.2853
-    },
-    {
-      "date": "2026-08-04T00:00:00Z",
-      "tone": -2.1355
-    },
-    {
-      "date": "2026-08-05T00:00:00Z",
-      "tone": -1.7931
-    },
-    {
-      "date": "2026-08-06T00:00:00Z",
-      "tone": -2.4176
-    },
-    {
-      "date": "2026-08-07T00:00:00Z",
-      "tone": -2.3638
-    },
-    {
-      "date": "2026-08-08T00:00:00Z",
-      "tone": -2.4358
-    },
-    {
-      "date": "2026-08-09T00:00:00Z",
-      "tone": -2.4279
-    },
-    {
-      "date": "2026-08-10T00:00:00Z",
-      "tone": -2.6141
-    },
-    {
-      "date": "2026-08-11T00:00:00Z",
-      "tone": -2.5951
-    },
-    {
-      "date": "2026-08-12T00:00:00Z",
-      "tone": -2.4317
-    },
-    {
-      "date": "2026-08-13T00:00:00Z",
-      "tone": -2.5019
-    },
-    {
-      "date": "2026-08-14T00:00:00Z",
-      "tone": -2.7433
-    },
-    {
-      "date": "2026-08-15T00:00:00Z",
-      "tone": -3.1846
-    },
-    {
-      "date": "2026-08-16T00:00:00Z",
-      "tone": -2.8339
-    },
-    {
-      "date": "2026-08-17T00:00:00Z",
-      "tone": -2.4545
-    },
-    {
-      "date": "2026-08-18T00:00:00Z",
-      "tone": -2.5481
-    },
-    {
-      "date": "2026-08-19T00:00:00Z",
-      "tone": -2.6504
-    },
-    {
-      "date": "2026-08-20T00:00:00Z",
-      "tone": -3.3528
-    },
-    {
-      "date": "2026-08-21T00:00:00Z",
-      "tone": -2.9185
-    },
-    {
-      "date": "2026-08-22T00:00:00Z",
-      "tone": -2.6829
-    },
-    {
-      "date": "2026-08-23T00:00:00Z",
-      "tone": -3.0378
-    },
-    {
-      "date": "2026-08-24T00:00:00Z",
-      "tone": -3.1868
-    },
-    {
-      "date": "2026-08-25T00:00:00Z",
-      "tone": -2.8408
-    },
-    {
-      "date": "2026-08-26T00:00:00Z",
-      "tone": -2.2481
-    },
-    {
-      "date": "2026-08-27T00:00:00Z",
-      "tone": -2.4858
-    },
-    {
-      "date": "2026-08-28T00:00:00Z",
-      "tone": -2.5791
-    },
-    {
-      "date": "2026-08-29T00:00:00Z",
-      "tone": -2.2511
-    },
-    {
-      "date": "2026-08-30T00:00:00Z",
-      "tone": -2.5846
-    },
-    {
-      "date": "2026-08-31T00:00:00Z",
-      "tone": -3.2344
-    },
-    {
-      "date": "2026-09-01T00:00:00Z",
-      "tone": -2.4923
-    },
-    {
-      "date": "2026-09-02T00:00:00Z",
-      "tone": -2.9793
-    },
-    {
-      "date": "2026-09-03T00:00:00Z",
-      "tone": -2.8142
-    },
-    {
-      "date": "2026-09-04T00:00:00Z",
-      "tone": -2.7973
-    },
-    {
-      "date": "2026-09-05T00:00:00Z",
-      "tone": -3.4814
-    },
-    {
-      "date": "2026-09-06T00:00:00Z",
-      "tone": -3.5787
-    },
-    {
-      "date": "2026-09-07T00:00:00Z",
-      "tone": -2.8797
-    },
-    {
-      "date": "2026-09-08T00:00:00Z",
-      "tone": -3.3414
-    },
-    {
-      "date": "2026-09-09T00:00:00Z",
-      "tone": -3.3262
-    },
-    {
-      "date": "2026-09-10T00:00:00Z",
-      "tone": -2.5094
-    },
-    {
-      "date": "2026-09-11T00:00:00Z",
-      "tone": -2.5575
-    },
-    {
-      "date": "2026-09-12T00:00:00Z",
-      "tone": -2.1401
-    },
-    {
-      "date": "2026-09-13T00:00:00Z",
-      "tone": -2.4525
-    },
-    {
-      "date": "2026-09-20T00:00:00Z",
-      "tone": -2.6954
-    },
-    {
-      "date": "2026-09-21T00:00:00Z",
-      "tone": -2.3931
-    },
-    {
-      "date": "2026-09-22T00:00:00Z",
-      "tone": -2.086
-    },
-    {
-      "date": "2026-09-23T00:00:00Z",
-      "tone": -2.3276
-    },
-    {
-      "date": "2026-09-24T00:00:00Z",
-      "tone": -2.1238
-    }
-  ],
-  "lastUpdated": "2026-09-24T11:26:31.881Z",
-  "stale": false,
-  "source": "https://api.gdeltproject.org/api/v2/doc/doc?query=Iran&mode=timelinetone&timespan=6m&format=json",
-  "backfill": {
-    "fromGitHistory": 19,
-    "range": [
-      "2026-03-10",
-      "2026-03-28"
-    ],
-    "at": "2026-09-24T18:24:43.227Z"
-  },
-  "knownGaps": [
-    {
-      "from": "2026-07-01",
-      "to": "2026-07-04",
-      "days": 4,
-      "reason": "gdelt-no-data",
-      "detectedAt": "2026-09-24T18:24:53.535Z",
-      "lastCheckedAt": null,
-      "note": "Ausente en todas las versiones de index.html desde el 5 sept 2026: GDELT no devolvió estos días."
-    },
-    {
-      "from": "2026-09-14",
-      "to": "2026-09-19",
-      "days": 6,
-      "reason": "gdelt-no-data",
-      "detectedAt": "2026-09-24T18:24:53.535Z",
-      "lastCheckedAt": null,
-      "note": "Ausente en todas las versiones de index.html desde el 5 sept 2026 (runs del 14 y 16 sept terminaron OK con último día 13 sept; el del 23 sept saltó directamente al 20): GDELT no devolvió estos días."
-    }
-  ]
-}
-</script>
-
+<!-- Datos: generado a diario por scripts/update-data.mjs -->
+<script src="data/bundle.js"></script>
 <script>
   // -----------------------------------------------------------------
-  // index.html no hace ninguna petición de red. Los datos de tono
-  // medio viven en el bloque <script type="application/json"
-  // id="tone-data-json"> de más arriba; scripts/update-data.mjs lo
-  // sobrescribe una vez al día llamando a GDELT server-side (ver
-  // README). Abrir la página, o cambiar de pestaña de tiempo, no
-  // genera ningún tráfico de red.
+  // Los datos llegan en data/bundle.js (window.GEO_DATA), generado a
+  // diario por scripts/update-data.mjs. La página no llama a GDELT ni
+  // a ningún otro endpoint: todos los cálculos se hacen aquí.
   // -----------------------------------------------------------------
 
-  let chartInstance = null;
-  let fullHistoricalData = [];
+  const INK = '#0f172a';
+  let charts = {};
   let currentActiveDays = '30';
+  let DATA = null; // { cfg, total:[{date,tone}], days: Map(date -> row), groups:[...] }
 
-  function formatDateLabel(isoStr) {
-    if (!isoStr) return "";
-    const d = new Date(isoStr);
-    if (isNaN(d.getTime())) return isoStr;
-    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  // ---- Carga y preparación ----------------------------------------
+
+  function unitMap(unit) {
+    const m = new Map();
+    for (const [date, value, norm] of (unit?.series || [])) m.set(date, { value, norm });
+    return m;
   }
+
+  function prepareData() {
+    const g = window.GEO_DATA;
+    if (!g || !g.config || !g.units) return null;
+    const cfg = g.config;
+    const totalId = cfg.total.id;
+    const groupDefs = [...cfg.groups, cfg.rest];
+
+    const totalTone = unitMap(g.units[`${totalId}.tone`]);
+    const totalVol = unitMap(g.units[`${totalId}.volraw`]);
+    const gTone = {}, gVol = {};
+    for (const grp of cfg.groups) {
+      gTone[grp.id] = unitMap(g.units[`${grp.id}.tone`]);
+      gVol[grp.id] = unitMap(g.units[`${grp.id}.volraw`]);
+    }
+
+    const total = [...totalTone.keys()].sort().map(d => ({ date: d, tone: totalTone.get(d).value }));
+
+    // Días completos: tono y volumen de la total y de todos los grupos, y
+    // un "resto" coherente (volumen > 0 y tono derivado razonable).
+    const days = new Map();
+    let excluded = 0;
+    for (const d of [...totalVol.keys()].sort()) {
+      const tv = totalVol.get(d)?.value, tt = totalTone.get(d)?.value;
+      if (!(tv > 0) || tt === undefined) { excluded++; continue; }
+      const row = { date: d, total: { vol: tv, tone: tt } };
+      let ok = true, sumVol = 0, sumVT = 0;
+      for (const grp of cfg.groups) {
+        const v = gVol[grp.id].get(d)?.value, t = gTone[grp.id].get(d)?.value;
+        if (v === undefined || t === undefined) { ok = false; break; }
+        row[grp.id] = { vol: v, tone: v > 0 ? t : null };
+        sumVol += v; sumVT += v > 0 ? v * t : 0;
+      }
+      if (!ok) { excluded++; continue; }
+      const restVol = tv - sumVol;
+      const restTone = restVol > 0 ? (tv * tt - sumVT) / restVol : null;
+      if (!(restVol > 0) || !(restTone > -30 && restTone < 30)) { excluded++; continue; }
+      row[cfg.rest.id] = { vol: restVol, tone: restTone };
+      days.set(d, row);
+    }
+
+    const stale = Object.entries(g.units).filter(([, u]) => u.stale).map(([k]) => k);
+    const lastUpdated = g.units[`${totalId}.tone`]?.lastUpdated ?? null;
+    return { cfg, groupDefs, total, days, excluded, stale, lastUpdated, queries: g.queries || {}, units: g.units };
+  }
+
+  // Ventanas por días de calendario (no por número de puntos): con huecos
+  // de datos, "7 Days" sigue siendo una semana.
+  function windowBounds(lastDate, days) {
+    if (days === 'all') return null;
+    const n = parseInt(days, 10);
+    return { from: shiftDate(lastDate, -(n - 1)), to: lastDate, n };
+  }
+  function shiftDate(key, n) {
+    return new Date(Date.parse(key + 'T00:00:00Z') + n * 86400000).toISOString().slice(0, 10);
+  }
+  const inRange = (d, b) => !b || (d >= b.from && d <= b.to);
+
+  // Todos los días de calendario entre dos fechas: los días sin dato se
+  // pintan como hueco en el gráfico en lugar de unir los puntos vecinos.
+  function calendar(from, to) {
+    const out = [];
+    for (let d = from; d <= to; d = shiftDate(d, 1)) out.push(d);
+    return out;
+  }
+  const shortName = g => g.short || g.label;
+
+  // ---- Utilidades comunes --------------------------------------------
+
+  function formatDateLabel(key) {
+    const d = new Date(key + 'T00:00:00Z');
+    if (isNaN(d.getTime())) return key;
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' });
+  }
+  const fmt = (v, dp = 2) => (v === null || v === undefined || !isFinite(v)) ? '—' : v.toFixed(dp);
+  const signed = (v, dp = 2) => (v === null || !isFinite(v)) ? '—' : (v >= 0 ? '+' : '−') + Math.abs(v).toFixed(dp);
+  const pct = (v, dp = 1) => (v === null || !isFinite(v)) ? '—' : (100 * v).toFixed(dp) + '%';
 
   function calculateStats(dataArray) {
     const n = dataArray.length;
@@ -1118,6 +472,32 @@
     const variance = dataArray.reduce((acc, val) => acc + Math.pow(val - mean, 2), 0) / n;
     const stdDev = Math.sqrt(variance);
     return { mean, stdDev };
+  }
+
+  const baseLineOpts = () => ({
+    responsive: true,
+    maintainAspectRatio: false,
+    interaction: { mode: 'index', intersect: false },
+    plugins: {
+      legend: { display: true, position: 'top', labels: { usePointStyle: true, boxWidth: 8, boxHeight: 8, padding: 12, font: { family: "Lora, Georgia, serif", size: 12 } } },
+      tooltip: { mode: 'index', intersect: false, titleFont: { family: "Inter, sans-serif" }, bodyFont: { family: "Inter, sans-serif" } }
+    },
+    scales: {
+      x: { grid: { display: false }, ticks: { maxTicksLimit: 8, autoSkipPadding: 16, maxRotation: 0, font: { family: "Inter, sans-serif", size: 11 } } },
+      y: { grid: { color: '#f1f5f9' }, ticks: { font: { family: "Inter, sans-serif", size: 11 } } }
+    }
+  });
+
+  // Leyenda en HTML (la de Chart.js se corta en móvil con etiquetas largas).
+  function htmlLegend(id, items) {
+    document.getElementById(id + 'Legend').innerHTML = items.map(it =>
+      `<span class="inline-flex items-center gap-1.5"><span class="inline-block w-3 ${it.dashed ? 'h-0 border-t-2 border-dashed' : 'h-3 rounded-sm'}" style="${it.dashed ? 'border-color:' + it.color : 'background:' + it.color}"></span>${it.label}</span>`
+    ).join('');
+  }
+
+  function drawChart(id, config) {
+    if (charts[id]) charts[id].destroy();
+    charts[id] = new Chart(document.getElementById(id).getContext('2d'), config);
   }
 
   function analyzeCurrentSituation(tones, mean, stdDev, periodLabel) {
@@ -1196,174 +576,303 @@
     document.getElementById('derivativeAnalysis').innerHTML = assessmentText;
   }
 
-  function updateView(days) {
-    if (!fullHistoricalData || fullHistoricalData.length === 0) return;
+  // ---- 1. Tono titular ---------------------------------------------
 
-    let slicedData;
-    let periodLabel;
+  function renderHeadline(days) {
+    const series = DATA.total;
+    const b = windowBounds(series.at(-1).date, days);
+    const sliced = series.filter(p => inRange(p.date, b));
+    const periodLabel = days === 'all' ? 'War Total' : days === '7' ? '7-Day' : '1 Month';
 
-    if (days === 'all') {
-      slicedData = fullHistoricalData;
-      periodLabel = "War Total";
-    } else {
-      // Los datos guardados tienen resolución diaria, así que "7" y
-      // "30" son directamente número de días a recortar del final.
-      const count = parseInt(days);
-      slicedData = fullHistoricalData.slice(-Math.min(fullHistoricalData.length, count));
-      periodLabel = days === '7' ? "7-Day" : "1 Month";
-    }
-
-    const labels = slicedData.map(d => formatDateLabel(d.date));
-    const tones = slicedData.map(d => Number(d.tone));
-
+    const tones = sliced.map(d => Number(d.tone));
     const { mean, stdDev } = calculateStats(tones);
     analyzeCurrentSituation(tones, mean, stdDev, periodLabel);
 
-    const meanLine = tones.map(() => mean);
-    const lowerStdDevLine = tones.map(() => mean - stdDev);
-    const upperStdDevLine = tones.map(() => mean + stdDev);
+    const byDate = new Map(sliced.map(d => [d.date, Number(d.tone)]));
+    const cal = calendar(sliced[0].date, sliced.at(-1).date);
+    const labels = cal.map(formatDateLabel);
+    const line = cal.map(d => byDate.has(d) ? byDate.get(d) : null);
 
-    const ctx = document.getElementById('iranChart').getContext('2d');
-    if (chartInstance) chartInstance.destroy();
-
-    chartInstance = new Chart(ctx, {
+    drawChart('iranChart', {
       type: 'line',
       data: {
-        labels: labels,
+        labels,
         datasets: [
-          {
-            label: 'AvgTone',
-            data: tones,
-            borderColor: '#0f172a',
-            borderWidth: 1.5,
-            tension: 0.25,
-            fill: false, 
-            pointBackgroundColor: '#0f172a',
-            pointRadius: 0,
-            pointHoverRadius: 4
-          },
-          {
-            label: '-1 Std Dev',
-            data: lowerStdDevLine,
-            borderColor: '#ef4444',
-            borderWidth: 1,
-            borderDash: [4, 4],
-            pointRadius: 0,
-            fill: false
-          },
-          {
-            label: '+1 Std Dev',
-            data: upperStdDevLine,
-            borderColor: '#94a3b8',
-            borderWidth: 1,
-            borderDash: [4, 4],
-            pointRadius: 0,
-            fill: false
-          },
-          {
-            label: 'Mean',
-            data: meanLine,
-            borderColor: '#cbd5e1',
-            borderWidth: 1,
-            pointRadius: 0,
-            fill: false
-          }
+          { label: 'AvgTone', data: line, spanGaps: false, borderColor: INK, borderWidth: 2, tension: 0.25, fill: false, pointBackgroundColor: INK, pointRadius: 0, pointHoverRadius: 4 },
+          { label: '-1 Std Dev', data: cal.map(() => mean - stdDev), borderColor: '#ef4444', borderWidth: 1, borderDash: [4, 4], pointRadius: 0, fill: false },
+          { label: '+1 Std Dev', data: cal.map(() => mean + stdDev), borderColor: '#94a3b8', borderWidth: 1, borderDash: [4, 4], pointRadius: 0, fill: false },
+          { label: 'Mean', data: cal.map(() => mean), borderColor: '#cbd5e1', borderWidth: 1, pointRadius: 0, fill: false }
         ]
       },
-      options: {
-        responsive: true,
-        plugins: {
-          legend: {
-            display: true,
-            position: 'top',
-            labels: { usePointStyle: true, font: { family: "Lora, Georgia, serif" } }
-          },
-          tooltip: {
-            mode: 'index',
-            intersect: false,
-            titleFont: { family: "sans-serif" },
-            bodyFont: { family: "sans-serif" }
-          }
-        },
-        scales: {
-          x: { 
-            grid: { display: false }, 
-            ticks: { maxTicksLimit: 8, font: { family: "sans-serif", size: 11 } } 
-          },
-          y: { 
-            grid: { color: '#f1f5f9' }, 
-            ticks: { font: { family: "sans-serif", size: 11 } } 
-          }
-        }
-      }
+      options: baseLineOpts()
     });
   }
 
-  function loadEmbeddedData() {
-    const el = document.getElementById('tone-data-json');
-    if (!el) return { series: [], lastUpdated: null, stale: true };
-    try {
-      const parsed = JSON.parse(el.textContent);
-      return {
-        series: Array.isArray(parsed.series) ? parsed.series : [],
-        lastUpdated: parsed.lastUpdated ?? null,
-        stale: Boolean(parsed.stale),
-      };
-    } catch (err) {
-      console.error('No se pudo leer el bloque de datos embebido:', err);
-      return { series: [], lastUpdated: null, stale: true };
+  // ---- 2. Efecto guerra ----------------------------------------------
+
+  // Media ponderada por volumen de cada grupo en un conjunto de días.
+  function aggregate(rows, groupDefs) {
+    const totVol = rows.reduce((a, r) => a + r.total.vol, 0);
+    const out = { days: rows.length, groups: {} };
+    let T = 0;
+    for (const g of groupDefs) {
+      const vol = rows.reduce((a, r) => a + r[g.id].vol, 0);
+      const vt = rows.reduce((a, r) => a + (r[g.id].vol > 0 ? r[g.id].vol * r[g.id].tone : 0), 0);
+      const share = totVol > 0 ? vol / totVol : null;
+      const tone = vol > 0 ? vt / vol : null;
+      out.groups[g.id] = { share, tone };
+      if (share !== null && tone !== null) T += share * tone;
     }
+    out.tone = T;
+    return out;
   }
+
+  function comparisonWindows(dates, days) {
+    const last = dates.at(-1);
+    if (days === 'all') {
+      const first = dates[0];
+      return {
+        prev: { from: first, to: shiftDate(first, 29) },
+        cur: { from: shiftDate(last, -29), to: last },
+        label: '(first 30 days of the war vs last 30 days)'
+      };
+    }
+    const n = parseInt(days, 10);
+    return {
+      cur: { from: shiftDate(last, -(n - 1)), to: last },
+      prev: { from: shiftDate(last, -(2 * n - 1)), to: shiftDate(last, -n) },
+      label: days === '7' ? '(last 7 days vs previous 7)' : '(last 30 days vs previous 30)'
+    };
+  }
+
+  function renderWarEffect(days) {
+    const pending = document.getElementById('warPending');
+    const content = document.getElementById('warContent');
+    const rowsAll = [...DATA.days.values()];
+    if (rowsAll.length < 2) {
+      const missing = [DATA.cfg.total, ...DATA.cfg.groups].flatMap(s => ['tone', 'volraw'].map(m => `${s.id}.${m}`))
+        .filter(k => !DATA.units[k] || !DATA.units[k].series.length);
+      pending.innerHTML = `Group series are not available yet — they are downloaded by the daily GitHub Actions run.` +
+        (missing.length ? `<br><span class="text-xs">Missing: ${missing.join(', ')}</span>` : '');
+      pending.classList.remove('hidden');
+      content.classList.add('hidden');
+      return;
+    }
+    pending.classList.add('hidden');
+    content.classList.remove('hidden');
+
+    const defs = DATA.groupDefs;
+    const dates = rowsAll.map(r => r.date);
+    const b = windowBounds(dates.at(-1), days);
+    const rows = rowsAll.filter(r => inRange(r.date, b));
+    const cal = calendar(rows[0].date, rows.at(-1).date);
+    const labels = cal.map(formatDateLabel);
+    const calRows = cal.map(d => DATA.days.get(d) || null);
+
+    // Tono por grupo
+    drawChart('groupToneChart', {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [
+          ...defs.map(g => ({
+            label: g.label, data: calRows.map(r => r ? r[g.id].tone : null), borderColor: g.color, backgroundColor: g.color,
+            borderWidth: 2, tension: 0.25, pointRadius: 0, pointHoverRadius: 4, spanGaps: false
+          })),
+          { label: 'All Iran coverage', data: calRows.map(r => r ? r.total.tone : null), borderColor: INK, backgroundColor: INK,
+            borderWidth: 1, borderDash: [5, 4], pointRadius: 0, pointHoverRadius: 4 }
+        ]
+      },
+      options: (() => {
+        const o = baseLineOpts();
+        o.plugins.legend.display = false;
+        o.plugins.tooltip.callbacks = { label: c => ` ${c.dataset.label}: ${fmt(c.parsed.y)}` };
+        return o;
+      })()
+    });
+
+    htmlLegend('groupToneChart', [...defs.map(g => ({ label: g.label, color: g.color })), { label: 'All Iran coverage', color: INK, dashed: true }]);
+    htmlLegend('shareChart', defs.map(g => ({ label: g.label, color: g.color })));
+
+    // Reparto del volumen (100 % apilado)
+    drawChart('shareChart', {
+      type: 'line',
+      data: {
+        labels,
+        datasets: defs.map(g => ({
+          label: g.label, data: calRows.map(r => r ? 100 * r[g.id].vol / r.total.vol : null),
+          borderColor: '#ffffff', borderWidth: 2, backgroundColor: g.color, fill: true,
+          pointRadius: 0, pointHoverRadius: 3, tension: 0.2
+        }))
+      },
+      options: (() => {
+        const o = baseLineOpts();
+        o.scales.y = { stacked: true, min: 0, max: 100, grid: { color: '#f1f5f9' },
+          ticks: { callback: v => v + '%', font: { family: "Inter, sans-serif", size: 11 } } };
+        o.plugins.legend.display = false;
+        o.plugins.tooltip.callbacks = {
+          label: c => ` ${c.dataset.label}: ${fmt(c.parsed.y, 1)}%`,
+          afterBody: items => {
+            const r = calRows[items[0].dataIndex];
+            return r ? [`Articles: ${r.total.vol.toLocaleString('en-US')}`] : [];
+          }
+        };
+        return o;
+      })()
+    });
+
+    renderDecomposition(rowsAll, days);
+    renderDailyTable(rows);
+  }
+
+  function renderDecomposition(rowsAll, days) {
+    const defs = DATA.groupDefs;
+    const dates = rowsAll.map(r => r.date);
+    const w = comparisonWindows(dates, days);
+    const prevRows = rowsAll.filter(r => inRange(r.date, w.prev));
+    const curRows = rowsAll.filter(r => inRange(r.date, w.cur));
+    document.getElementById('decompPeriod').textContent = w.label;
+
+    const tbody = document.querySelector('#decompTable tbody');
+    const tfoot = document.querySelector('#decompTable tfoot');
+    const text = document.getElementById('decompText');
+    const minDays = days === '7' ? 3 : 7;
+    if (prevRows.length < minDays || curRows.length < minDays) {
+      text.innerHTML = `Not enough complete days to compare yet (${prevRows.length} vs ${curRows.length}; need at least ${minDays} in each window).`;
+      tbody.innerHTML = ''; tfoot.innerHTML = '';
+      document.getElementById('decompNote').textContent = '';
+      return;
+    }
+
+    const A = aggregate(prevRows, defs), B = aggregate(curRows, defs);
+    const T = (A.tone + B.tone) / 2;
+    const parts = defs.map(g => {
+      const a = A.groups[g.id], b = B.groups[g.id];
+      const sBar = (a.share + b.share) / 2, tBar = (a.tone + b.tone) / 2;
+      return {
+        g, a, b,
+        toneEffect: sBar * (b.tone - a.tone),          // la cobertura del grupo suena distinto
+        mixEffect: (tBar - T) * (b.share - a.share),  // el grupo pesa más o menos
+      };
+    });
+    const dTotal = B.tone - A.tone;
+    const toneSum = parts.reduce((s, p) => s + p.toneEffect, 0);
+    const mixSum = parts.reduce((s, p) => s + p.mixEffect, 0);
+
+    const cell = (v, dp = 2) => `<td class="py-2 px-2 text-right tabular-nums ${v > 0.005 ? 'text-emerald-700' : v < -0.005 ? 'text-red-700' : 'text-gray-600'}">${signed(v, dp)}</td>`;
+    tbody.innerHTML = parts.map(p => `
+      <tr>
+        <td class="py-2 pr-2"><span class="inline-block w-2.5 h-2.5 rounded-sm mr-1.5 align-middle" style="background:${p.g.color}"></span>${p.g.label}</td>
+        <td class="py-2 px-2 text-right tabular-nums text-gray-700 whitespace-nowrap">${pct(p.a.share, 0)} → ${pct(p.b.share, 0)}</td>
+        <td class="py-2 px-2 text-right tabular-nums text-gray-700 whitespace-nowrap">${fmt(p.a.tone)} → ${fmt(p.b.tone)}</td>
+        ${cell(p.toneEffect)}${cell(p.mixEffect)}
+      </tr>`).join('');
+    tfoot.innerHTML = `
+      <tr>
+        <td class="py-2 pr-2">All Iran coverage</td>
+        <td class="py-2 px-2"></td>
+        <td class="py-2 px-2 text-right tabular-nums whitespace-nowrap">${fmt(A.tone)} → ${fmt(B.tone)}</td>
+        ${cell(toneSum)}${cell(mixSum)}
+      </tr>`;
+
+    // Texto: el componente individual más grande manda
+    const comps = parts.flatMap(p => [
+      { v: p.toneEffect, what: `${shortName(p.g)} coverage ${p.toneEffect >= 0 ? 'sounding less negative' : 'sounding more negative'} (${fmt(p.a.tone)} → ${fmt(p.b.tone)})` },
+      { v: p.mixEffect, what: `${p.b.share > p.a.share ? 'a larger' : 'a smaller'} share of ${shortName(p.g)} stories (${pct(p.a.share, 0)} → ${pct(p.b.share, 0)})` }
+    ]).sort((x, y) => Math.abs(y.v) - Math.abs(x.v));
+    const top = comps[0];
+    const dir = Math.abs(dTotal) < 0.05 ? 'was broadly flat' : dTotal > 0 ? 'improved' : 'deteriorated';
+    const toneShare = Math.abs(toneSum) + Math.abs(mixSum) > 0 ? Math.abs(toneSum) / (Math.abs(toneSum) + Math.abs(mixSum)) : 0;
+    const driver = toneShare >= 0.65 ? 'mostly a <strong>change in how each topic is covered</strong>'
+      : toneShare <= 0.35 ? 'mostly a <strong>change in the mix of stories</strong>, not in how each topic is covered'
+      : 'a <strong>combination</strong> of changing tone and a changing story mix';
+    text.innerHTML = `
+      Volume‑weighted tone ${dir}: <strong>${fmt(A.tone)} → ${fmt(B.tone)}</strong> (${signed(dTotal)}).
+      This was ${driver}: tone effect ${signed(toneSum)}, mix effect ${signed(mixSum)}.
+      The single largest contribution (${signed(top.v)}) came from ${top.what}.`;
+
+    document.getElementById('decompNote').textContent =
+      `Based on ${A.days} and ${B.days} complete days (${w.prev.from} → ${w.prev.to} vs ${w.cur.from} → ${w.cur.to}). ` +
+      `Positive = pushes the overall tone up (less negative).` +
+      (DATA.excluded ? ` ${DATA.excluded} day(s) in the full series lack one or more group series and are left out.` : '');
+  }
+
+  function renderDailyTable(rows) {
+    const defs = DATA.groupDefs;
+    const head = `<thead class="sticky top-0 bg-white border-b border-ft text-gray-600"><tr>
+      <th class="py-1.5 px-2 text-left font-semibold">Date</th>
+      <th class="py-1.5 px-2 text-right font-semibold">Articles</th>
+      <th class="py-1.5 px-2 text-right font-semibold">Tone (all)</th>
+      ${defs.map(g => `<th class="py-1.5 px-2 text-right font-semibold whitespace-nowrap">${shortName(g)} share</th><th class="py-1.5 px-2 text-right font-semibold whitespace-nowrap">${shortName(g)} tone</th>`).join('')}
+    </tr></thead>`;
+    const body = [...rows].reverse().map(r => `<tr class="border-b border-gray-100">
+      <td class="py-1 px-2 whitespace-nowrap">${r.date}</td>
+      <td class="py-1 px-2 text-right tabular-nums">${r.total.vol.toLocaleString('en-US')}</td>
+      <td class="py-1 px-2 text-right tabular-nums">${fmt(r.total.tone)}</td>
+      ${defs.map(g => `<td class="py-1 px-2 text-right tabular-nums">${pct(r[g.id].vol / r.total.vol)}</td><td class="py-1 px-2 text-right tabular-nums">${fmt(r[g.id].tone)}</td>`).join('')}
+    </tr>`).join('');
+    document.getElementById('dailyTable').innerHTML = head + '<tbody>' + body + '</tbody>';
+  }
+
+  function renderQueries() {
+    const esc = s => String(s).replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
+    const defs = [DATA.cfg.total, ...DATA.cfg.groups];
+    document.getElementById('queryList').innerHTML = defs.map(d => `
+      <div><span class="font-semibold">${esc(d.label)}</span><br>
+      <code class="block bg-gray-50 border border-ft rounded-sm px-2 py-1 mt-0.5 break-words">${esc(DATA.queries[d.id] || '')}</code></div>`).join('') +
+      `<div><span class="font-semibold">${esc(DATA.cfg.rest.label)}</span><br><code class="block bg-gray-50 border border-ft rounded-sm px-2 py-1 mt-0.5">${esc(DATA.cfg.total.label)} − ${DATA.cfg.groups.map(g => esc(g.label)).join(' − ')}</code></div>`;
+  }
+
+  // ---- Arranque --------------------------------------------------------
 
   function formatUpdatedLabel(iso) {
-    if (!iso) return 'sin datos aún';
+    if (!iso) return 'no data yet';
     const d = new Date(iso);
-    if (isNaN(d.getTime())) return 'sin datos aún';
-    return d.toLocaleString('es-ES', {
-      day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
-    });
+    if (isNaN(d.getTime())) return 'no data yet';
+    return d.toLocaleString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+  }
+
+  function updateView(days) {
+    renderHeadline(days);
+    renderWarEffect(days);
   }
 
   function loadData() {
     const dot = document.getElementById('statusDot');
     const statusText = document.getElementById('statusText');
+    DATA = prepareData();
 
-    const data = loadEmbeddedData();
-    fullHistoricalData = data.series || [];
-
-    if (fullHistoricalData.length === 0) {
+    if (!DATA || DATA.total.length === 0) {
       dot.className = "w-2 h-2 rounded-full bg-current status-error";
-      statusText.textContent = "Sin datos";
+      statusText.textContent = "No data";
       document.getElementById('derivativeAnalysis').innerHTML =
-        '<span class="text-red-600">Todavía no hay datos guardados. Se actualizan una vez al día.</span>';
+        '<span class="text-red-600">Data file (data/bundle.js) not found or empty. It is refreshed daily by GitHub Actions.</span>';
       return;
     }
 
+    renderQueries();
     updateView(currentActiveDays);
 
-    if (data.stale) {
+    if (DATA.stale.length) {
       dot.className = "w-2 h-2 rounded-full bg-current pulse-dot status-loading";
-      statusText.textContent = `Datos actualizados: ${formatUpdatedLabel(data.lastUpdated)} · última actualización falló, mostrando el último dato válido`;
+      statusText.textContent = `Updated ${formatUpdatedLabel(DATA.lastUpdated)} · ${DATA.stale.length} series showing last valid data`;
+      statusText.title = 'Stale: ' + DATA.stale.join(', ');
     } else {
       dot.className = "w-2 h-2 rounded-full bg-current pulse-dot status-ok";
-      statusText.textContent = `Datos actualizados: ${formatUpdatedLabel(data.lastUpdated)}`;
+      statusText.textContent = `Updated ${formatUpdatedLabel(DATA.lastUpdated)}`;
     }
   }
 
   document.addEventListener("DOMContentLoaded", () => {
     loadData();
-
-    // "Refresh Data" simplemente vuelve a pintar la vista actual a
-    // partir del JSON embebido — no hace ninguna petición de red.
     document.getElementById('refreshBtn').addEventListener('click', loadData);
-
     const timeBtns = document.querySelectorAll('.time-btn[data-days]');
     timeBtns.forEach(btn => {
       btn.addEventListener('click', (e) => {
         timeBtns.forEach(b => b.classList.remove('active'));
         e.target.classList.add('active');
         currentActiveDays = e.target.getAttribute('data-days');
-        updateView(currentActiveDays);
+        if (DATA) updateView(currentActiveDays);
       });
     });
   });

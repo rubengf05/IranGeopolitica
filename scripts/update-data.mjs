@@ -1,242 +1,97 @@
 #!/usr/bin/env node
 // scripts/update-data.mjs
 //
-// Actualiza a diario los datos de tono medio embebidos en index.html,
-// dentro del bloque:
+// Descarga a diario de GDELT DOC 2.0 las series definidas en
+// series.config.json y las guarda en data/:
 //
-//   <script type="application/json" id="tone-data-json"> ... </script>
+//   data/<serie>.tone.json    tono medio diario   (mode=timelinetone)
+//   data/<serie>.volraw.json  nº de artículos     (mode=timelinevolraw)
+//   data/bundle.js            todo lo anterior + la config, para index.html
 //
-// MODELO APPEND-ONLY (desde sept. 2026)
-// -------------------------------------
-// Antes se pedía a GDELT `timespan=6m` y se sustituía la serie entera en
-// cada ejecución. Eso tenía dos problemas: la ventana móvil iba
-// comiéndose el inicio de la guerra (28 feb 2026) y cualquier día que
-// GDELT no devolviera desaparecía sin dejar rastro.
+// Cada fichero es una "unidad" independiente y APPEND-ONLY:
+//   - se pide solo una ventana reciente (mín. MIN_WINDOW_DAYS días, para que
+//     GDELT responda con resolución diaria) más los huecos recientes;
+//   - se fusiona por fecha y nunca se borra un día ya guardado;
+//   - los días sin dato quedan en knownGaps con su motivo;
+//   - si GDELT falla, esa unidad se marca stale y las demás siguen.
+// Si cambias la consulta de una serie en series.config.json, sus ficheros se
+// archivan en data/archive/ y se vuelve a descargar desde warStart.
 //
-// Ahora la serie embebida ES el histórico persistido:
-//   1. Se lee la serie ya guardada en index.html.
-//   2. Se pide a GDELT solo una ventana corta con fechas fijas
-//      (startdatetime / enddatetime): desde unos días antes del último dato
-//      guardado (para refrescar el día parcial y revisiones recientes de
-//      GDELT) o desde el primer día sin cubrir que aún no esté
-//      documentado como hueco, lo que sea anterior. Nunca antes de
-//      WAR_START.
-//   3. Se fusiona por fecha: los días devueltos sobrescriben, los demás
-//      se conservan. Nunca se borra un día ya guardado.
-//   4. Todo día entre WAR_START y el último dato que no tenga valor queda
-//      registrado en `knownGaps` con su motivo. No hay huecos silenciosos.
+// Termina con código 1 (run en rojo) si alguna unidad no valida, si alguna
+// lleva más de MAX_STALE_HOURS sin refrescarse o si GDELT no trae días
+// recientes. Los fallos puntuales solo dejan un aviso.
 //
-// Si GDELT falla, se conservan los datos y se marca stale: true (el sitio
-// no se rompe). Si el dato lleva más de MAX_STALE_HOURS sin refrescarse,
-// o si algo no cuadra en la validación, el proceso termina con código 1
-// para que el run de GitHub Actions salga en rojo.
-//
-// La media, desviación típica, velocity y el "Automated Assessment" se
-// siguen calculando en el navegador (index.html). Este script solo
-// guarda la serie diaria.
+// Los cálculos (media, SD, % de volumen, descomposición) se hacen en el
+// navegador, en index.html.
 
-import { readFileSync, writeFileSync, appendFileSync } from "node:fs";
-import { fileURLToPath } from "node:url";
+import { readFileSync, writeFileSync, existsSync, mkdirSync, renameSync } from "node:fs";
 import path from "node:path";
+import {
+  ROOT, loadConfig, buildQueries, buildUrl, fetchWithRetries, parseDailyTimeline,
+  describeError, sleep, gh, dayKey, addDays, diffDays, toGdeltStamp, maxKey, minKey,
+} from "./lib/gdelt.mjs";
+import { writeBundle } from "./lib/bundle.mjs";
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const INDEX_HTML_PATH =
-  process.env.INDEX_HTML_PATH || path.join(__dirname, "..", "index.html");
+const DATA_DIR = process.env.DATA_DIR || path.join(ROOT, "data");
+const MODES = ["tone", "volraw"];
+const GDELT_MODE = { tone: "timelinetone", volraw: "timelinevolraw" };
 
-// ---- Configuración ------------------------------------------------------
+const MIN_WINDOW_DAYS = 60;
+const GAP_RETRY_DAYS = 14;
+const MAX_STALE_HOURS = 48;
+const MAX_LAST_POINT_AGE_DAYS = 2;
+const num = (v, d) => (v === undefined ? d : Number(v));
+const REQUEST_GAP_MS = num(process.env.GDELT_REQUEST_GAP_MS, 15000); // GDELT: ≥5 s entre peticiones
+const BACKOFF_MS = (process.env.GDELT_BACKOFF_MS || "10000,30000,60000").split(",").map(Number);
+const TIME_BUDGET_MS = num(process.env.GDELT_TIME_BUDGET_MS, 20 * 60000);
+const MAX_CONSECUTIVE_BLOCKED = 2; // tras 2 unidades seguidas bloqueadas, no se insiste
 
-const WAR_START = "2026-02-28"; // inicio de "War Total"; no se pide nada anterior
-const OVERLAP_DAYS = 3; // días que se vuelven a pedir por detrás del último dato
-const GAP_RETRY_DAYS = 14; // huecos más recientes que esto se reintentan cada día
-const MAX_STALE_HOURS = 48; // a partir de aquí, stale => run en rojo
-const MAX_LAST_POINT_AGE_DAYS = 2; // último punto más viejo que esto => run en rojo
+// ---- Serie de una unidad --------------------------------------------------
 
-const GDELT_BASE =
-  process.env.GDELT_BASE_URL || "https://api.gdeltproject.org/api/v2/doc/doc";
-const GDELT_QUERY = "Iran";
+const unitPath = (id, mode) => path.join(DATA_DIR, `${id}.${mode}.json`);
 
-const MAX_ATTEMPTS = 4;
-const ATTEMPT_TIMEOUT_MS = 30000;
-// GDELT exige como mínimo 5 s entre peticiones; un 429 se reintenta con
-// esperas más largas. (Antes el primer reintento era a los 2 s, lo que
-// garantizaba otro 429: entre el 6 y el 22 sept 2026, 12 de 17 ejecuciones
-// acabaron en stale por 429 o timeout de conexión.)
-const BACKOFF_MS = (process.env.GDELT_BACKOFF_MS || "10000,30000,60000")
-  .split(",")
-  .map(Number);
-
-const FETCH_OPTS = {
-  headers: {
-    "User-Agent": "Mozilla/5.0 (compatible; IranGeopoliticalMonitor/1.0)",
-    Accept: "application/json",
-  },
-};
-
-const DATA_BLOCK_RE =
-  /(<script type="application\/json" id="tone-data-json">\n)([\s\S]*?)(\n<\/script>)/;
-
-const DAY_MS = 86400000;
-
-// ---- Utilidades de fecha (todo en UTC, clave "YYYY-MM-DD") ---------------
-
-const dayKey = (d) => new Date(d).toISOString().slice(0, 10);
-const addDays = (key, n) => dayKey(Date.parse(`${key}T00:00:00Z`) + n * DAY_MS);
-const diffDays = (a, b) =>
-  Math.round((Date.parse(`${a}T00:00:00Z`) - Date.parse(`${b}T00:00:00Z`)) / DAY_MS);
-const toGdeltStamp = (key) => key.replace(/-/g, "") + "000000";
-const maxKey = (a, b) => (a > b ? a : b);
-const minKey = (a, b) => (a < b ? a : b);
-
-// GDELT devuelve fechas como "20260820T000000Z". Nos quedamos solo con
-// los dígitos antes de trocear, así funciona con ese formato o con
-// "YYYYMMDDHHMMSS" pelado.
-function parseGdeltDate(raw) {
-  if (!raw) return null;
-  const digits = String(raw).replace(/\D/g, "");
-  if (digits.length < 8) return null;
-  const y = digits.slice(0, 4), mo = digits.slice(4, 6), d = digits.slice(6, 8);
-  return `${y}-${mo}-${d}`;
+function readUnit(id, mode) {
+  const p = unitPath(id, mode);
+  if (!existsSync(p)) return null;
+  return JSON.parse(readFileSync(p, "utf8"));
 }
 
-function sleep(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
-function describeError(err) {
-  const causeMsg = err?.cause?.message || err?.cause?.code;
-  return causeMsg ? `${err.message} (causa: ${causeMsg})` : err.message;
-}
-
-// Anotaciones visibles en la UI de GitHub Actions (no-op fuera de Actions).
-const gh = {
-  warning: (msg) => console.log(`::warning title=update-data::${msg}`),
-  error: (msg) => console.log(`::error title=update-data::${msg}`),
-  summary: (md) => {
-    if (process.env.GITHUB_STEP_SUMMARY) {
-      try { appendFileSync(process.env.GITHUB_STEP_SUMMARY, md + "\n"); } catch {}
-    }
-  },
-};
-
-// ---- GDELT --------------------------------------------------------------
-
-function buildUrl(startKey, endKey) {
-  const p = new URLSearchParams({
-    query: GDELT_QUERY,
-    mode: "timelinetone",
-    startdatetime: toGdeltStamp(startKey),
-    enddatetime: toGdeltStamp(endKey),
-    format: "json",
-  });
-  return `${GDELT_BASE}?${p}`;
-}
-
-async function fetchOnce(url) {
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), ATTEMPT_TIMEOUT_MS);
-  try {
-    const resp = await fetch(url, { ...FETCH_OPTS, signal: controller.signal });
-    const rawText = await resp.text();
-    if (!resp.ok) throw new Error(`HTTP ${resp.status} — ${rawText.slice(0, 200)}`);
-
-    let data;
-    try {
-      data = JSON.parse(rawText);
-    } catch {
-      throw new Error(`respuesta no es JSON válido: ${rawText.slice(0, 200)}`);
-    }
-
-    const rawSeries = (data.timeline && data.timeline[0] && data.timeline[0].data) || [];
-    const points = rawSeries
-      .map((p) => ({ day: parseGdeltDate(p.date), tone: Number(p.value) }))
-      .filter((p) => p.day !== null && Number.isFinite(p.tone));
-
-    if (!points.length) throw new Error("GDELT respondió sin puntos de datos utilizables.");
-    return points;
-  } finally {
-    clearTimeout(timer);
-  }
-}
-
-async function fetchWithRetries(url) {
-  let lastErr;
-  for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
-    try {
-      return await fetchOnce(url);
-    } catch (err) {
-      lastErr = err;
-      console.error(`[update-data] intento ${attempt}/${MAX_ATTEMPTS} falló: ${describeError(err)}`);
-      if (attempt < MAX_ATTEMPTS) await sleep(BACKOFF_MS[attempt - 1] ?? 60000);
-    }
-  }
-  throw lastErr;
-}
-
-// ---- Serie y huecos -----------------------------------------------------
-
-function readPreviousPayload(html) {
-  const match = html.match(DATA_BLOCK_RE);
-  if (!match) return null;
-  try {
-    return JSON.parse(match[2]);
-  } catch {
-    return null;
-  }
-}
-
-function seriesToMap(series) {
+function toMap(series) {
   const m = new Map();
   for (const p of series || []) {
-    const k = p?.date ? dayKey(p.date) : null;
-    const t = Number(p?.tone);
-    if (k && Number.isFinite(t)) m.set(k, t);
+    if (p?.date && Number.isFinite(Number(p.value))) m.set(p.date, p);
   }
   return m;
 }
+const fromMap = (m) => [...m.keys()].sort().map((k) => m.get(k));
 
-function mapToSeries(m) {
-  return [...m.keys()].sort().map((k) => ({ date: `${k}T00:00:00Z`, tone: m.get(k) }));
-}
-
-// Días sin dato entre WAR_START y el último día guardado, agrupados en rangos.
-function findMissingRanges(m) {
+function findMissingRanges(m, warStart) {
   const keys = [...m.keys()].sort();
   if (!keys.length) return [];
   const last = keys[keys.length - 1];
-  const ranges = [];
+  const out = [];
   let open = null;
-  for (let k = WAR_START; k <= last; k = addDays(k, 1)) {
-    if (m.has(k)) {
-      if (open) { ranges.push(open); open = null; }
-    } else if (open) {
-      open.to = k;
-    } else {
-      open = { from: k, to: k };
-    }
+  for (let k = warStart; k <= last; k = addDays(k, 1)) {
+    if (m.has(k)) { if (open) { out.push(open); open = null; } }
+    else if (open) open.to = k;
+    else open = { from: k, to: k };
   }
-  if (open) ranges.push(open);
-  return ranges;
+  if (open) out.push(open);
+  return out;
 }
 
-const rangeDays = (r) => diffDays(r.to, r.from) + 1;
 const overlaps = (a, b) => a.from <= b.to && b.from <= a.to;
-const isDocumented = (range, knownGaps) =>
-  knownGaps.some((g) => g.from <= range.from && g.to >= range.to);
+const isDocumented = (r, gaps) => gaps.some((g) => g.from <= r.from && g.to >= r.to);
 
-// Recalcula knownGaps a partir de la serie fusionada. Conserva motivo y
-// fecha de detección de los huecos que ya estaban documentados.
-function rebuildKnownGaps(m, previousGaps, fetchedWindow, nowIso) {
-  return findMissingRanges(m).map((r) => {
-    const prev = previousGaps.find((g) => overlaps(g, r));
-    const inWindow = fetchedWindow && r.from >= fetchedWindow.from && r.to <= fetchedWindow.to;
-    const reason = inWindow
-      ? "gdelt-no-data" // se pidió explícitamente ese rango y GDELT no devolvió esos días
-      : prev?.reason ?? "not-captured";
+function rebuildGaps(m, prevGaps, window, warStart, nowIso) {
+  return findMissingRanges(m, warStart).map((r) => {
+    const prev = prevGaps.find((g) => overlaps(g, r));
+    const inWindow = window && r.from >= window.from && r.to <= window.to;
     return {
       from: r.from,
       to: r.to,
-      days: rangeDays(r),
-      reason,
+      days: diffDays(r.to, r.from) + 1,
+      reason: inWindow ? "gdelt-no-data" : prev?.reason ?? "not-captured",
       detectedAt: prev?.detectedAt ?? nowIso,
       lastCheckedAt: inWindow ? nowIso : prev?.lastCheckedAt ?? null,
       ...(prev?.note ? { note: prev.note } : {}),
@@ -244,173 +99,164 @@ function rebuildKnownGaps(m, previousGaps, fetchedWindow, nowIso) {
   });
 }
 
-// Primer día que hay que pedir a GDELT en esta ejecución.
-function computeWindowStart(m, knownGaps, todayKey) {
+function windowStart(m, gaps, todayKey, warStart) {
   const keys = [...m.keys()].sort();
-  if (!keys.length) return WAR_START;
-  let start = addDays(keys[keys.length - 1], -OVERLAP_DAYS);
-  for (const r of findMissingRanges(m)) {
-    const undocumented = !isDocumented(r, knownGaps);
-    const recent = diffDays(todayKey, r.to) <= GAP_RETRY_DAYS;
-    if (undocumented || recent) start = minKey(start, r.from);
+  if (!keys.length) return warStart;
+  let start = minKey(addDays(keys[keys.length - 1], -3), addDays(todayKey, -MIN_WINDOW_DAYS));
+  for (const r of findMissingRanges(m, warStart)) {
+    if (!isDocumented(r, gaps) || diffDays(todayKey, r.to) <= GAP_RETRY_DAYS) start = minKey(start, r.from);
   }
-  return maxKey(start, WAR_START);
+  return maxKey(start, warStart);
 }
 
-function validate(merged, previousMap, knownGaps) {
+function validate(merged, prevMap, gaps, mode, warStart) {
   const problems = [];
-  for (const k of previousMap.keys()) {
-    if (!merged.has(k)) problems.push(`se ha perdido el día ${k}, que ya estaba guardado`);
+  for (const k of prevMap.keys()) if (!merged.has(k)) problems.push(`se ha perdido el día ${k}`);
+  for (const [k, p] of merged) {
+    if (k < warStart) problems.push(`día ${k} anterior a warStart`);
+    if (mode === "tone" && !(p.value > -30 && p.value < 30)) problems.push(`tono fuera de rango el ${k}: ${p.value}`);
+    if (mode === "volraw" && !(p.value >= 0)) problems.push(`volumen negativo el ${k}: ${p.value}`);
   }
-  for (const [k, t] of merged) {
-    if (k < WAR_START) problems.push(`día ${k} anterior a WAR_START`);
-    if (!(t > -30 && t < 30)) problems.push(`tono fuera de rango el ${k}: ${t}`);
-  }
-  for (const r of findMissingRanges(merged)) {
-    if (!isDocumented(r, knownGaps)) problems.push(`hueco sin documentar ${r.from} → ${r.to}`);
+  for (const r of findMissingRanges(merged, warStart)) {
+    if (!isDocumented(r, gaps)) problems.push(`hueco sin documentar ${r.from} → ${r.to}`);
   }
   return problems;
 }
 
-// ---- Principal ----------------------------------------------------------
+// ---- Principal ------------------------------------------------------------
 
 async function main() {
-  const html = readFileSync(INDEX_HTML_PATH, "utf8");
-  if (!DATA_BLOCK_RE.test(html)) {
-    throw new Error(
-      'No se encontró el bloque <script type="application/json" id="tone-data-json"> en index.html — ¿se ha movido o renombrado?'
-    );
-  }
-
+  const cfg = loadConfig();
+  const warStart = cfg.warStart;
   const now = new Date();
   const nowIso = now.toISOString();
   const todayKey = dayKey(now);
+  const startedAt = Date.now();
+  mkdirSync(DATA_DIR, { recursive: true });
 
-  const previous = readPreviousPayload(html) || {};
-  const previousMap = seriesToMap(previous.series);
-  const previousGaps = Array.isArray(previous.knownGaps) ? previous.knownGaps : [];
+  const units = [];
+  for (const q of buildQueries(cfg)) for (const mode of MODES) units.push({ ...q, mode });
 
-  const windowStart = computeWindowStart(previousMap, previousGaps, todayKey);
-  const windowEnd = addDays(todayKey, 1); // enddatetime exclusivo en la práctica
-  const url = buildUrl(windowStart, windowEnd);
-  console.log(`[update-data] Ventana pedida a GDELT: ${windowStart} → ${todayKey}`);
-
-  const base = {
-    method: "append-only",
-    warStart: WAR_START,
-    source:
-      `GDELT DOC 2.0 (query=${GDELT_QUERY}, mode=timelinetone). Acumulado incremental: ` +
-      `cada ejecución diaria pide solo una ventana corta con startdatetime/enddatetime ` +
-      `y la fusiona por fecha con la serie ya guardada; nunca se reescribe el histórico entero.`,
-  };
-
-  let payload;
   let exitCode = 0;
+  let blockedStreak = 0;
+  let firstRequest = true;
+  const rows = [];
 
-  try {
-    let points;
-    let fetchedFrom = windowStart;
-    let backfillError = null;
+  for (const u of units) {
+    const label = `${u.id}.${u.mode}`;
+    let prev = readUnit(u.id, u.mode);
+
+    if (prev && prev.query !== u.query) {
+      const archDir = path.join(DATA_DIR, "archive");
+      mkdirSync(archDir, { recursive: true });
+      const dest = path.join(archDir, `${u.id}.${u.mode}.${nowIso.replace(/[:.]/g, "-")}.json`);
+      renameSync(unitPath(u.id, u.mode), dest);
+      gh.warning(`${label}: la consulta ha cambiado; datos anteriores archivados en ${path.relative(ROOT, dest)} y se descarga de nuevo desde ${warStart}.`);
+      prev = null;
+    }
+    prev = prev || { id: u.id, mode: u.mode, query: u.query, series: [], knownGaps: [] };
+
+    const prevMap = toMap(prev.series);
+    const prevGaps = Array.isArray(prev.knownGaps) ? prev.knownGaps : [];
+    const from = windowStart(prevMap, prevGaps, todayKey, warStart);
+    const url = buildUrl({
+      query: u.query,
+      mode: GDELT_MODE[u.mode],
+      startdatetime: toGdeltStamp(from),
+      enddatetime: toGdeltStamp(addDays(todayKey, 1)),
+    });
+
+    const base = {
+      id: u.id, mode: u.mode, label: u.label, query: u.query,
+      method: "append-only", warStart,
+      source: `GDELT DOC 2.0, mode=${GDELT_MODE[u.mode]}, ventanas incrementales con startdatetime/enddatetime`,
+    };
+    let payload;
+    let status;
+
+    const skip =
+      blockedStreak >= MAX_CONSECUTIVE_BLOCKED ? "GDELT está bloqueando al runner; no se insiste en esta ejecución"
+      : Date.now() - startedAt > TIME_BUDGET_MS ? "presupuesto de tiempo agotado"
+      : null;
+
     try {
-      points = await fetchWithRetries(url);
+      if (skip) throw Object.assign(new Error(skip), { skipped: true });
+      if (!firstRequest) await sleep(REQUEST_GAP_MS);
+      firstRequest = false;
+      console.log(`[update-data] ${label}: ventana ${from} → ${todayKey}`);
+      const data = await fetchWithRetries(url, { backoffMs: BACKOFF_MS, label });
+      const points = parseDailyTimeline(data);
+      if (!points.length) throw new Error("GDELT respondió sin puntos utilizables.");
+      blockedStreak = 0;
+
+      const merged = new Map(prevMap);
+      let added = 0, revised = 0;
+      for (const p of points) {
+        if (p.date < warStart || p.date > todayKey) continue;
+        const old = merged.get(p.date);
+        if (!old) added++;
+        else if (old.value !== p.value || old.norm !== p.norm) revised++;
+        merged.set(p.date, p);
+      }
+      const knownGaps = rebuildGaps(merged, prevGaps, { from, to: todayKey }, warStart, nowIso);
+      const problems = validate(merged, prevMap, knownGaps, u.mode, warStart);
+      if (problems.length) {
+        problems.forEach((p) => gh.error(`${label}: ${p}`));
+        exitCode = 1;
+        rows.push(`| ${label} | ❌ validación | ${problems.length} problemas, no se escribe |`);
+        continue; // no se toca el fichero
+      }
+      payload = {
+        ...base,
+        series: fromMap(merged),
+        lastUpdated: nowIso,
+        stale: false,
+        lastFetch: { from, to: todayKey, points: points.length, added, revised },
+        knownGaps,
+      };
+      const lastDay = payload.series.at(-1).date;
+      if (diffDays(todayKey, lastDay) > MAX_LAST_POINT_AGE_DAYS) {
+        gh.error(`${label}: GDELT responde pero el último día disponible es ${lastDay}.`);
+        exitCode = 1;
+      }
+      if (knownGaps.length) {
+        gh.warning(`${label}: huecos ${knownGaps.map((g) => `${g.from}→${g.to} (${g.reason})`).join(", ")}`);
+      }
+      status = `✅ +${added} nuevos, ${revised} revisados`;
+      console.log(`[update-data] ${label}: OK (${payload.series.length} días hasta ${lastDay}, +${added}, ~${revised}).`);
     } catch (err) {
-      // Si la ventana larga (backfill de huecos) falla, se intenta al menos
-      // la ventana corta normal para no dejar el día de hoy sin actualizar.
-      const keys = [...previousMap.keys()].sort();
-      const shortStart = keys.length
-        ? maxKey(addDays(keys[keys.length - 1], -OVERLAP_DAYS), WAR_START)
-        : null;
-      // Un 429 no depende de la ventana: repetir con otra solo empeora el bloqueo.
-      if (!shortStart || shortStart <= windowStart || /HTTP 429/.test(err.message)) throw err;
-      backfillError = describeError(err);
-      gh.warning(`Backfill ${windowStart}→${shortStart} falló (${backfillError}); se reintenta solo la ventana corta.`);
-      await sleep(BACKOFF_MS[0] ?? 10000);
-      fetchedFrom = shortStart;
-      points = await fetchWithRetries(buildUrl(shortStart, windowEnd));
-    }
-    const merged = new Map(previousMap);
-    let added = 0, revised = 0;
-    for (const { day, tone } of points) {
-      if (day < WAR_START || day > todayKey) continue;
-      if (!merged.has(day)) added++;
-      else if (merged.get(day) !== tone) revised++;
-      merged.set(day, tone);
-    }
-
-    let knownGaps = rebuildKnownGaps(merged, previousGaps, { from: fetchedFrom, to: todayKey }, nowIso);
-    if (backfillError) {
-      // Los huecos que no se pudieron pedir quedan documentados para no
-      // reintentarlos a ciegas cada día (bórralos de knownGaps para forzar
-      // un nuevo intento).
-      knownGaps = knownGaps.map((g) =>
-        g.reason === "not-captured" && g.to < fetchedFrom
-          ? { ...g, reason: "backfill-failed", note: backfillError.slice(0, 200), lastCheckedAt: nowIso }
-          : g
-      );
-    }
-    const problems = validate(merged, previousMap, knownGaps);
-    if (problems.length) {
-      // No se escribe nada: mejor no tocar el histórico que corromperlo.
-      problems.forEach((p) => gh.error(p));
-      throw Object.assign(new Error(`validación fallida (${problems.length} problemas)`), { fatal: true });
+      const msg = describeError(err);
+      if (err.rateLimited || err.network) blockedStreak++;
+      if (err.invalidQuery || err.badResolution) {
+        gh.error(`${label}: ${err.invalidQuery ? "consulta rechazada por GDELT" : "resolución no diaria"} — ${msg}`);
+        exitCode = 1;
+      }
+      payload = {
+        ...base,
+        series: prev.series,
+        lastUpdated: prev.lastUpdated ?? null,
+        stale: true,
+        lastFetch: prev.lastFetch ?? null,
+        knownGaps: prevGaps,
+        lastError: { message: msg, at: nowIso, window: { from, to: todayKey } },
+      };
+      const ageH = prev.lastUpdated ? (now - new Date(prev.lastUpdated)) / 3600000 : Infinity;
+      if (ageH > MAX_STALE_HOURS) {
+        gh.error(`${label}: sin refrescar ${prev.lastUpdated ? `desde hace ${Math.round(ageH)} h` : "nunca"}. Último error: ${msg}`);
+        exitCode = 1;
+      } else {
+        gh.warning(`${label}: GDELT falló, se conservan los datos (stale). ${msg}`);
+      }
+      status = `⚠️ stale — ${msg.slice(0, 80)}`;
     }
 
-    payload = {
-      series: mapToSeries(merged),
-      lastUpdated: nowIso,
-      stale: false,
-      ...base,
-      lastFetch: { from: fetchedFrom, to: todayKey, points: points.length, added, revised },
-      knownGaps,
-    };
-
-    const lastDay = payload.series[payload.series.length - 1].date.slice(0, 10);
-    console.log(
-      `[update-data] OK — ${points.length} puntos recibidos, ${added} días nuevos, ${revised} revisados. ` +
-      `Serie: ${payload.series.length} días (${payload.series[0].date.slice(0, 10)} → ${lastDay}).`
-    );
-    if (knownGaps.length) {
-      const txt = knownGaps.map((g) => `${g.from}→${g.to} (${g.days}d, ${g.reason})`).join(", ");
-      gh.warning(`Huecos documentados en la serie: ${txt}`);
-    }
-    if (diffDays(todayKey, lastDay) > MAX_LAST_POINT_AGE_DAYS) {
-      gh.error(`GDELT responde pero el último día disponible es ${lastDay}.`);
-      exitCode = 1;
-    }
-    gh.summary(
-      `### update-data\n- Ventana: ${windowStart} → ${todayKey}\n- Nuevos: ${added} · revisados: ${revised}\n` +
-      `- Serie: ${payload.series.length} días hasta ${lastDay}\n- Huecos documentados: ${knownGaps.length}`
-    );
-  } catch (err) {
-    if (err.fatal) throw err;
-    const msg = describeError(err);
-    console.error(`[update-data] GDELT falló tras ${MAX_ATTEMPTS} intentos: ${msg}`);
-    payload = {
-      series: mapToSeries(previousMap),
-      lastUpdated: previous.lastUpdated ?? null,
-      stale: true,
-      ...base,
-      lastFetch: previous.lastFetch ?? null,
-      knownGaps: previousGaps,
-      lastError: { message: msg, at: nowIso, window: { from: windowStart, to: todayKey } },
-    };
-    const ageH = previous.lastUpdated ? (now - new Date(previous.lastUpdated)) / 3600000 : Infinity;
-    if (ageH > MAX_STALE_HOURS) {
-      gh.error(`Datos sin refrescar desde hace ${Math.round(ageH)} h (límite ${MAX_STALE_HOURS} h). Último error: ${msg}`);
-      exitCode = 1;
-    } else {
-      gh.warning(`GDELT falló; se conservan los datos (stale: true). Error: ${msg}`);
-    }
+    writeFileSync(unitPath(u.id, u.mode), JSON.stringify(payload, null, 1) + "\n");
+    rows.push(`| ${label} | ${status} | ${payload.series.length} días${payload.series.length ? ` hasta ${payload.series.at(-1).date}` : ""} |`);
   }
 
-  const json = JSON.stringify(payload, null, 2);
-  const newHtml = html.replace(DATA_BLOCK_RE, () => `${html.match(DATA_BLOCK_RE)[1]}${json}\n</script>`);
-  const check = readPreviousPayload(newHtml);
-  if (!check || check.stale !== payload.stale || check.series.length !== payload.series.length) {
-    throw new Error("No se pudo sustituir el bloque de datos correctamente.");
-  }
-  writeFileSync(INDEX_HTML_PATH, newHtml, "utf8");
-  console.log(`[update-data] index.html actualizado (stale: ${payload.stale}).`);
+  writeBundle(cfg, DATA_DIR);
+  gh.summary(`### update-data\n\n| Serie | Estado | Datos |\n|---|---|---|\n${rows.join("\n")}\n`);
+  console.log(rows.join("\n"));
   process.exitCode = exitCode;
 }
 

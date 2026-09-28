@@ -1,0 +1,46 @@
+{
+  "_comment": [
+    "Definición de las series que se descargan de GDELT DOC 2.0.",
+    "total: serie de referencia (toda la cobertura de Irán).",
+    "groups: subconjuntos DISJUNTOS de la serie total, en orden de prioridad.",
+    "  Cada grupo excluye automáticamente las palabras de los grupos anteriores,",
+    "  así un artículo cae en un único grupo. 'rest' = total - grupos (se calcula en el navegador).",
+    "Si cambias base/anyOf de una serie, el script archiva sus datos en data/archive/",
+    "y la vuelve a descargar entera desde warStart: no se mezclan definiciones distintas.",
+    "Comprueba antes las consultas con el workflow 'Probar consultas GDELT'."
+  ],
+  "warStart": "2026-02-28",
+  "total": {
+    "id": "iran",
+    "label": "All Iran coverage",
+    "base": "Iran"
+  },
+  "groups": [
+    {
+      "id": "diplomacy",
+      "label": "Diplomacy & negotiations",
+      "short": "diplomacy",
+      "color": "#2563eb",
+      "anyOf": [
+        "negotiations", "negotiation", "talks", "ceasefire", "truce", "diplomacy", "diplomatic",
+        "mediation", "mediator", "envoy", "memorandum", "Araghchi", "Witkoff", "\"peace deal\""
+      ]
+    },
+    {
+      "id": "military",
+      "label": "Military operations",
+      "short": "military",
+      "color": "#b91c1c",
+      "anyOf": [
+        "war", "military", "airstrike", "airstrikes", "missile", "missiles", "drone", "drones",
+        "IRGC", "\"Revolutionary Guard\"", "Hormuz", "blockade", "bombing", "troops", "navy", "casualties"
+      ]
+    }
+  ],
+  "rest": {
+    "id": "rest",
+    "label": "Everything else (derived)",
+    "short": "other",
+    "color": "#0f9f8f"
+  }
+}
