@@ -1,0 +1,23 @@
+{
+ "id": "military",
+ "mode": "volraw",
+ "label": "Military operations",
+ "query": "Iran (war OR military OR airstrike OR airstrikes OR missile OR missiles OR drone OR drones OR IRGC OR \"Revolutionary Guard\" OR Hormuz OR blockade OR bombing OR troops OR navy OR casualties) -negotiations -negotiation -talks -ceasefire -truce -diplomacy -diplomatic -mediation -mediator -envoy -memorandum -Araghchi -Witkoff -\"peace deal\"",
+ "method": "append-only",
+ "warStart": "2026-02-28",
+ "source": "GDELT DOC 2.0, mode=timelinevolraw, ventanas incrementales con startdatetime/enddatetime",
+ "series": [],
+ "lastUpdated": null,
+ "stale": true,
+ "lastFetch": null,
+ "knownGaps": [],
+ "lastError": {
+  "message": "GDELT está bloqueando al runner; no se insiste en esta ejecución",
+  "at": "2026-09-29T11:36:33.082Z",
+  "window": {
+   "from": "2026-02-28",
+   "to": "2026-09-29"
+  }
+ },
+ "lastAttemptAt": null
+}

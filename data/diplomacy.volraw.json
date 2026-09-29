@@ -1,0 +1,23 @@
+{
+ "id": "diplomacy",
+ "mode": "volraw",
+ "label": "Diplomacy & negotiations",
+ "query": "Iran (negotiations OR negotiation OR talks OR ceasefire OR truce OR diplomacy OR diplomatic OR mediation OR mediator OR envoy OR memorandum OR Araghchi OR Witkoff OR \"peace deal\")",
+ "method": "append-only",
+ "warStart": "2026-02-28",
+ "source": "GDELT DOC 2.0, mode=timelinevolraw, ventanas incrementales con startdatetime/enddatetime",
+ "series": [],
+ "lastUpdated": null,
+ "stale": true,
+ "lastFetch": null,
+ "knownGaps": [],
+ "lastError": {
+  "message": "fetch failed (causa: Connect Timeout Error (attempted address: api.gdeltproject.org:443, timeout: 10000ms))",
+  "at": "2026-09-29T11:36:33.082Z",
+  "window": {
+   "from": "2026-02-28",
+   "to": "2026-09-29"
+  }
+ },
+ "lastAttemptAt": "2026-09-29T11:36:33.082Z"
+}
