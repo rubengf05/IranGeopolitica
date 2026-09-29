@@ -13,11 +13,11 @@
  "knownGaps": [],
  "lastError": {
   "message": "fetch failed (causa: Connect Timeout Error (attempted address: api.gdeltproject.org:443, timeout: 10000ms))",
-  "at": "2026-09-29T11:36:33.082Z",
+  "at": "2026-09-29T12:29:00.470Z",
   "window": {
    "from": "2026-02-28",
    "to": "2026-09-29"
   }
  },
- "lastAttemptAt": "2026-09-29T11:36:33.082Z"
+ "lastAttemptAt": "2026-09-29T12:29:00.470Z"
 }

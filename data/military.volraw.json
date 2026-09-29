@@ -12,12 +12,12 @@
  "lastFetch": null,
  "knownGaps": [],
  "lastError": {
-  "message": "GDELT está bloqueando al runner; no se insiste en esta ejecución",
-  "at": "2026-09-29T11:36:33.082Z",
+  "message": "GDELT no devolvió JSON: Your query was too short or too long.",
+  "at": "2026-09-29T12:29:00.470Z",
   "window": {
    "from": "2026-02-28",
    "to": "2026-09-29"
   }
  },
- "lastAttemptAt": null
+ "lastAttemptAt": "2026-09-29T12:29:00.470Z"
 }

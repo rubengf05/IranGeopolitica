@@ -12,12 +12,12 @@
  "lastFetch": null,
  "knownGaps": [],
  "lastError": {
-  "message": "HTTP 429 — Please limit requests to one every 5 seconds or contact kalev.leetaru5@gmail.com for larger queries. All high-traffic users should switch to our ngrams dataset:",
-  "at": "2026-09-29T11:36:33.082Z",
+  "message": "GDELT no devolvió JSON: Your query was too short or too long.",
+  "at": "2026-09-29T12:29:00.470Z",
   "window": {
    "from": "2026-02-28",
    "to": "2026-09-29"
   }
  },
- "lastAttemptAt": "2026-09-29T11:36:33.082Z"
+ "lastAttemptAt": "2026-09-29T12:29:00.470Z"
 }
