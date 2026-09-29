@@ -136,6 +136,18 @@ async function main() {
 
   const units = [];
   for (const q of buildQueries(cfg)) for (const mode of MODES) units.push({ ...q, mode });
+  // Primero las series nunca descargadas o más antiguas: si GDELT empieza a
+  // bloquear al runner a mitad de ejecución, las que se quedan sin turno son
+  // las que ya están al día, no siempre las mismas del final de la lista.
+  // A igualdad, va antes la que lleva más tiempo sin intentarse.
+  const sortKey = (u) => {
+    try {
+      const d = readUnit(u.id, u.mode);
+      return `${d?.lastUpdated || ""}|${d?.lastAttemptAt || ""}`;
+    } catch { return "|"; }
+  };
+  const keys = new Map(units.map((u) => [u, sortKey(u)]));
+  units.sort((a, b) => keys.get(a).localeCompare(keys.get(b)));
 
   let exitCode = 0;
   let blockedStreak = 0;
@@ -173,6 +185,7 @@ async function main() {
     };
     let payload;
     let status;
+    let attempted = false;
 
     const skip =
       blockedStreak >= MAX_CONSECUTIVE_BLOCKED ? "GDELT está bloqueando al runner; no se insiste en esta ejecución"
@@ -183,6 +196,7 @@ async function main() {
       if (skip) throw Object.assign(new Error(skip), { skipped: true });
       if (!firstRequest) await sleep(REQUEST_GAP_MS);
       firstRequest = false;
+      attempted = true;
       console.log(`[update-data] ${label}: ventana ${from} → ${todayKey}`);
       const data = await fetchWithRetries(url, { backoffMs: BACKOFF_MS, label });
       const points = parseDailyTimeline(data);
@@ -250,6 +264,7 @@ async function main() {
       status = `⚠️ stale — ${msg.slice(0, 80)}`;
     }
 
+    payload.lastAttemptAt = attempted ? nowIso : prev.lastAttemptAt ?? null;
     writeFileSync(unitPath(u.id, u.mode), JSON.stringify(payload, null, 1) + "\n");
     rows.push(`| ${label} | ${status} | ${payload.series.length} días${payload.series.length ? ` hasta ${payload.series.at(-1).date}` : ""} |`);
   }
