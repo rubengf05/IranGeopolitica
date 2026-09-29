@@ -1019,11 +1019,11 @@
   },
   {
    "date": "2026-09-29",
-   "value": 3512,
-   "norm": 87279
+   "value": 4742,
+   "norm": 115008
   }
  ],
- "lastUpdated": "2026-09-29T12:29:00.470Z",
+ "lastUpdated": "2026-09-29T19:41:44.623Z",
  "stale": false,
  "lastFetch": {
   "from": "2026-07-31",
@@ -1047,7 +1047,7 @@
    "days": 6,
    "reason": "gdelt-no-data",
    "detectedAt": "2026-09-29T11:36:33.082Z",
-   "lastCheckedAt": "2026-09-29T12:29:00.470Z"
+   "lastCheckedAt": "2026-09-29T19:41:44.623Z"
   },
   {
    "from": "2026-09-26",
@@ -1055,8 +1055,8 @@
    "days": 1,
    "reason": "gdelt-no-data",
    "detectedAt": "2026-09-29T11:36:33.082Z",
-   "lastCheckedAt": "2026-09-29T12:29:00.470Z"
+   "lastCheckedAt": "2026-09-29T19:41:44.623Z"
   }
  ],
- "lastAttemptAt": "2026-09-29T12:29:00.470Z"
+ "lastAttemptAt": "2026-09-29T19:41:44.623Z"
 }
