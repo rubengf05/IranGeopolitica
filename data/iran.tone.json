@@ -817,14 +817,18 @@
   },
   {
    "date": "2026-09-29",
-   "value": -2.6676
+   "value": -2.6346
+  },
+  {
+   "date": "2026-09-30",
+   "value": -2.4389
   }
  ],
- "lastUpdated": "2026-09-29T12:29:00.470Z",
- "stale": true,
+ "lastUpdated": "2026-09-30T19:42:12.426Z",
+ "stale": false,
  "lastFetch": {
-  "from": "2026-07-31",
-  "to": "2026-09-29",
+  "from": "2026-08-01",
+  "to": "2026-09-30",
   "points": 54,
   "added": 1,
   "revised": 1
@@ -845,7 +849,7 @@
    "days": 6,
    "reason": "gdelt-no-data",
    "detectedAt": "2026-09-24T18:24:53.535Z",
-   "lastCheckedAt": "2026-09-29T12:29:00.470Z",
+   "lastCheckedAt": "2026-09-30T19:42:12.426Z",
    "note": "Ausente en todas las versiones de index.html desde el 5 sept 2026 (runs del 14 y 16 sept terminaron OK con último día 13 sept; el del 23 sept saltó directamente al 20): GDELT no devolvió estos días."
   },
   {
@@ -854,16 +858,8 @@
    "days": 1,
    "reason": "gdelt-no-data",
    "detectedAt": "2026-09-28T13:24:30.853Z",
-   "lastCheckedAt": "2026-09-29T12:29:00.470Z"
+   "lastCheckedAt": "2026-09-30T19:42:12.426Z"
   }
  ],
- "lastError": {
-  "message": "HTTP 429 — Please limit requests to one every 5 seconds or contact kalev.leetaru5@gmail.com for larger queries. All high-traffic users should switch to our ngrams dataset:",
-  "at": "2026-09-30T12:13:51.859Z",
-  "window": {
-   "from": "2026-08-01",
-   "to": "2026-09-30"
-  }
- },
- "lastAttemptAt": "2026-09-30T12:13:51.859Z"
+ "lastAttemptAt": "2026-09-30T19:42:12.426Z"
 }
