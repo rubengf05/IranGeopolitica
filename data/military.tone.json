@@ -12,12 +12,12 @@
  "lastFetch": null,
  "knownGaps": [],
  "lastError": {
-  "message": "GDELT no devolvió JSON: Your query was too short or too long.",
-  "at": "2026-10-04T12:03:47.121Z",
+  "message": "HTTP 429 — Please limit requests to one every 5 seconds or contact kalev.leetaru5@gmail.com for larger queries. All high-traffic users should switch to our ngrams dataset:",
+  "at": "2026-10-04T18:25:50.967Z",
   "window": {
    "from": "2026-02-28",
    "to": "2026-10-04"
   }
  },
- "lastAttemptAt": "2026-10-04T12:03:47.121Z"
+ "lastAttemptAt": "2026-10-04T18:25:50.967Z"
 }
