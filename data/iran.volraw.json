@@ -1064,12 +1064,12 @@
   }
  ],
  "lastError": {
-  "message": "GDELT está bloqueando al runner; no se insiste en esta ejecución",
-  "at": "2026-10-04T18:25:50.967Z",
+  "message": "HTTP 429 — Please limit requests to one every 5 seconds or contact kalev.leetaru5@gmail.com for larger queries. All high-traffic users should switch to our ngrams dataset:",
+  "at": "2026-10-05T14:07:32.695Z",
   "window": {
-   "from": "2026-08-05",
-   "to": "2026-10-04"
+   "from": "2026-08-06",
+   "to": "2026-10-05"
   }
  },
- "lastAttemptAt": "2026-10-02T12:12:01.944Z"
+ "lastAttemptAt": "2026-10-05T14:07:32.695Z"
 }

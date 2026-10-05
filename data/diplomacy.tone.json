@@ -821,16 +821,24 @@
   },
   {
    "date": "2026-09-30",
-   "value": -2.511
+   "value": -2.4329
+  },
+  {
+   "date": "2026-10-01",
+   "value": -2.7038
+  },
+  {
+   "date": "2026-10-02",
+   "value": -2.7855
   }
  ],
- "lastUpdated": "2026-09-30T19:42:12.426Z",
- "stale": true,
+ "lastUpdated": "2026-10-05T14:07:32.695Z",
+ "stale": false,
  "lastFetch": {
-  "from": "2026-08-01",
-  "to": "2026-09-30",
-  "points": 54,
-  "added": 1,
+  "from": "2026-08-06",
+  "to": "2026-10-05",
+  "points": 51,
+  "added": 2,
   "revised": 1
  },
  "knownGaps": [
@@ -848,7 +856,7 @@
    "days": 6,
    "reason": "gdelt-no-data",
    "detectedAt": "2026-09-29T11:36:33.082Z",
-   "lastCheckedAt": "2026-09-30T19:42:12.426Z"
+   "lastCheckedAt": "2026-10-05T14:07:32.695Z"
   },
   {
    "from": "2026-09-26",
@@ -856,16 +864,8 @@
    "days": 1,
    "reason": "gdelt-no-data",
    "detectedAt": "2026-09-29T11:36:33.082Z",
-   "lastCheckedAt": "2026-09-30T19:42:12.426Z"
+   "lastCheckedAt": "2026-10-05T14:07:32.695Z"
   }
  ],
- "lastError": {
-  "message": "GDELT está bloqueando al runner; no se insiste en esta ejecución",
-  "at": "2026-10-04T18:25:50.967Z",
-  "window": {
-   "from": "2026-08-05",
-   "to": "2026-10-04"
-  }
- },
- "lastAttemptAt": "2026-10-04T12:03:47.121Z"
+ "lastAttemptAt": "2026-10-05T14:07:32.695Z"
 }

@@ -13,11 +13,11 @@
  "knownGaps": [],
  "lastError": {
   "message": "HTTP 429 — Please limit requests to one every 5 seconds or contact kalev.leetaru5@gmail.com for larger queries. All high-traffic users should switch to our ngrams dataset:",
-  "at": "2026-10-04T18:25:50.967Z",
+  "at": "2026-10-05T14:07:32.695Z",
   "window": {
    "from": "2026-02-28",
-   "to": "2026-10-04"
+   "to": "2026-10-05"
   }
  },
- "lastAttemptAt": "2026-10-04T18:25:50.967Z"
+ "lastAttemptAt": "2026-10-05T14:07:32.695Z"
 }
