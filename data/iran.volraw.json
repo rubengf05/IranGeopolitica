@@ -1064,8 +1064,8 @@
   }
  ],
  "lastError": {
-  "message": "HTTP 429 — Please limit requests to one every 5 seconds or contact kalev.leetaru5@gmail.com for larger queries. All high-traffic users should switch to our ngrams dataset:",
-  "at": "2026-10-06T13:05:02.268Z",
+  "message": "GDELT está bloqueando al runner; no se insiste en esta ejecución",
+  "at": "2026-10-06T19:53:17.597Z",
   "window": {
    "from": "2026-08-07",
    "to": "2026-10-06"
