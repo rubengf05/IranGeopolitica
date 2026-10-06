@@ -13,11 +13,11 @@
  "knownGaps": [],
  "lastError": {
   "message": "GDELT no devolvió JSON: Your query was too short or too long.",
-  "at": "2026-10-05T21:42:30.725Z",
+  "at": "2026-10-06T13:05:02.268Z",
   "window": {
    "from": "2026-02-28",
-   "to": "2026-10-05"
+   "to": "2026-10-06"
   }
  },
- "lastAttemptAt": "2026-10-05T21:42:30.725Z"
+ "lastAttemptAt": "2026-10-06T13:05:02.268Z"
 }
