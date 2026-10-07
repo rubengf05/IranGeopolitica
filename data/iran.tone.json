@@ -830,16 +830,20 @@
   {
    "date": "2026-10-02",
    "value": -2.7171
+  },
+  {
+   "date": "2026-10-06",
+   "value": -3.341
   }
  ],
- "lastUpdated": "2026-10-05T14:07:32.695Z",
- "stale": true,
+ "lastUpdated": "2026-10-07T20:15:36.792Z",
+ "stale": false,
  "lastFetch": {
-  "from": "2026-08-06",
-  "to": "2026-10-05",
-  "points": 51,
-  "added": 2,
-  "revised": 1
+  "from": "2026-08-08",
+  "to": "2026-10-07",
+  "points": 50,
+  "added": 1,
+  "revised": 0
  },
  "knownGaps": [
   {
@@ -857,7 +861,7 @@
    "days": 6,
    "reason": "gdelt-no-data",
    "detectedAt": "2026-09-24T18:24:53.535Z",
-   "lastCheckedAt": "2026-10-05T14:07:32.695Z",
+   "lastCheckedAt": "2026-10-07T20:15:36.792Z",
    "note": "Ausente en todas las versiones de index.html desde el 5 sept 2026 (runs del 14 y 16 sept terminaron OK con último día 13 sept; el del 23 sept saltó directamente al 20): GDELT no devolvió estos días."
   },
   {
@@ -866,16 +870,16 @@
    "days": 1,
    "reason": "gdelt-no-data",
    "detectedAt": "2026-09-28T13:24:30.853Z",
-   "lastCheckedAt": "2026-10-05T14:07:32.695Z"
+   "lastCheckedAt": "2026-10-07T20:15:36.792Z"
+  },
+  {
+   "from": "2026-10-03",
+   "to": "2026-10-05",
+   "days": 3,
+   "reason": "gdelt-no-data",
+   "detectedAt": "2026-10-07T20:15:36.792Z",
+   "lastCheckedAt": "2026-10-07T20:15:36.792Z"
   }
  ],
- "lastError": {
-  "message": "GDELT está bloqueando al runner; no se insiste en esta ejecución",
-  "at": "2026-10-07T12:59:40.783Z",
-  "window": {
-   "from": "2026-08-08",
-   "to": "2026-10-07"
-  }
- },
- "lastAttemptAt": "2026-10-05T14:07:32.695Z"
+ "lastAttemptAt": "2026-10-07T20:15:36.792Z"
 }
