@@ -12,12 +12,12 @@
  "lastFetch": null,
  "knownGaps": [],
  "lastError": {
-  "message": "fetch failed (causa: Connect Timeout Error (attempted address: api.gdeltproject.org:443, timeout: 10000ms))",
-  "at": "2026-10-08T13:07:25.132Z",
+  "message": "HTTP 429 — Please limit requests to one every 5 seconds or contact kalev.leetaru5@gmail.com for larger queries. All high-traffic users should switch to our ngrams dataset:",
+  "at": "2026-10-08T20:18:10.130Z",
   "window": {
    "from": "2026-02-28",
    "to": "2026-10-08"
   }
  },
- "lastAttemptAt": "2026-10-08T13:07:25.132Z"
+ "lastAttemptAt": "2026-10-08T20:18:10.130Z"
 }
