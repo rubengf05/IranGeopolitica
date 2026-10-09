@@ -1024,17 +1024,32 @@
   },
   {
    "date": "2026-09-30",
-   "value": 2299,
-   "norm": 78766
+   "value": 3490,
+   "norm": 111356
+  },
+  {
+   "date": "2026-10-01",
+   "value": 5656,
+   "norm": 174731
+  },
+  {
+   "date": "2026-10-02",
+   "value": 2226,
+   "norm": 61712
+  },
+  {
+   "date": "2026-10-06",
+   "value": 105,
+   "norm": 3958
   }
  ],
- "lastUpdated": "2026-09-30T19:42:12.426Z",
- "stale": true,
+ "lastUpdated": "2026-10-09T19:52:12.898Z",
+ "stale": false,
  "lastFetch": {
-  "from": "2026-08-01",
-  "to": "2026-09-30",
-  "points": 54,
-  "added": 1,
+  "from": "2026-08-10",
+  "to": "2026-10-09",
+  "points": 48,
+  "added": 3,
   "revised": 1
  },
  "knownGaps": [
@@ -1052,7 +1067,7 @@
    "days": 6,
    "reason": "gdelt-no-data",
    "detectedAt": "2026-09-29T11:36:33.082Z",
-   "lastCheckedAt": "2026-09-30T19:42:12.426Z"
+   "lastCheckedAt": "2026-10-09T19:52:12.898Z"
   },
   {
    "from": "2026-09-26",
@@ -1060,16 +1075,16 @@
    "days": 1,
    "reason": "gdelt-no-data",
    "detectedAt": "2026-09-29T11:36:33.082Z",
-   "lastCheckedAt": "2026-09-30T19:42:12.426Z"
+   "lastCheckedAt": "2026-10-09T19:52:12.898Z"
+  },
+  {
+   "from": "2026-10-03",
+   "to": "2026-10-05",
+   "days": 3,
+   "reason": "gdelt-no-data",
+   "detectedAt": "2026-10-09T19:52:12.898Z",
+   "lastCheckedAt": "2026-10-09T19:52:12.898Z"
   }
  ],
- "lastError": {
-  "message": "HTTP 429 — Please limit requests to one every 5 seconds or contact kalev.leetaru5@gmail.com for larger queries. All high-traffic users should switch to our ngrams dataset:",
-  "at": "2026-10-09T12:54:05.106Z",
-  "window": {
-   "from": "2026-08-10",
-   "to": "2026-10-09"
-  }
- },
- "lastAttemptAt": "2026-10-09T12:54:05.106Z"
+ "lastAttemptAt": "2026-10-09T19:52:12.898Z"
 }
