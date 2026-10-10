@@ -883,11 +883,11 @@
  ],
  "lastError": {
   "message": "HTTP 429 — Please limit requests to one every 5 seconds or contact kalev.leetaru5@gmail.com for larger queries. All high-traffic users should switch to our ngrams dataset:",
-  "at": "2026-10-09T19:52:12.898Z",
+  "at": "2026-10-10T12:12:05.128Z",
   "window": {
-   "from": "2026-08-10",
-   "to": "2026-10-09"
+   "from": "2026-08-11",
+   "to": "2026-10-10"
   }
  },
- "lastAttemptAt": "2026-10-09T19:52:12.898Z"
+ "lastAttemptAt": "2026-10-10T12:12:05.128Z"
 }

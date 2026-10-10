@@ -1035,17 +1035,32 @@
   {
    "date": "2026-10-02",
    "value": 642,
-   "norm": 46896
+   "norm": 61712
+  },
+  {
+   "date": "2026-10-06",
+   "value": 31,
+   "norm": 3958
+  },
+  {
+   "date": "2026-10-08",
+   "value": 3,
+   "norm": 678
+  },
+  {
+   "date": "2026-10-10",
+   "value": 22,
+   "norm": 1836
   }
  ],
- "lastUpdated": "2026-10-05T14:07:32.695Z",
- "stale": true,
+ "lastUpdated": "2026-10-10T12:12:05.128Z",
+ "stale": false,
  "lastFetch": {
-  "from": "2026-08-06",
-  "to": "2026-10-05",
-  "points": 51,
-  "added": 0,
-  "revised": 0
+  "from": "2026-08-11",
+  "to": "2026-10-10",
+  "points": 49,
+  "added": 3,
+  "revised": 1
  },
  "knownGaps": [
   {
@@ -1062,7 +1077,7 @@
    "days": 6,
    "reason": "gdelt-no-data",
    "detectedAt": "2026-09-29T19:41:44.623Z",
-   "lastCheckedAt": "2026-10-05T14:07:32.695Z"
+   "lastCheckedAt": "2026-10-10T12:12:05.128Z"
   },
   {
    "from": "2026-09-26",
@@ -1070,16 +1085,32 @@
    "days": 1,
    "reason": "gdelt-no-data",
    "detectedAt": "2026-09-29T19:41:44.623Z",
-   "lastCheckedAt": "2026-10-05T14:07:32.695Z"
+   "lastCheckedAt": "2026-10-10T12:12:05.128Z"
+  },
+  {
+   "from": "2026-10-03",
+   "to": "2026-10-05",
+   "days": 3,
+   "reason": "gdelt-no-data",
+   "detectedAt": "2026-10-10T12:12:05.128Z",
+   "lastCheckedAt": "2026-10-10T12:12:05.128Z"
+  },
+  {
+   "from": "2026-10-07",
+   "to": "2026-10-07",
+   "days": 1,
+   "reason": "gdelt-no-data",
+   "detectedAt": "2026-10-10T12:12:05.128Z",
+   "lastCheckedAt": "2026-10-10T12:12:05.128Z"
+  },
+  {
+   "from": "2026-10-09",
+   "to": "2026-10-09",
+   "days": 1,
+   "reason": "gdelt-no-data",
+   "detectedAt": "2026-10-10T12:12:05.128Z",
+   "lastCheckedAt": "2026-10-10T12:12:05.128Z"
   }
  ],
- "lastError": {
-  "message": "HTTP 429 — Please limit requests to one every 5 seconds or contact kalev.leetaru5@gmail.com for larger queries. All high-traffic users should switch to our ngrams dataset:",
-  "at": "2026-10-09T19:52:12.898Z",
-  "window": {
-   "from": "2026-08-10",
-   "to": "2026-10-09"
-  }
- },
- "lastAttemptAt": "2026-10-09T19:52:12.898Z"
+ "lastAttemptAt": "2026-10-10T12:12:05.128Z"
 }
