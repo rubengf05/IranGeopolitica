@@ -905,10 +905,10 @@
  ],
  "lastError": {
   "message": "GDELT está bloqueando al runner; no se insiste en esta ejecución",
-  "at": "2026-10-11T19:15:13.859Z",
+  "at": "2026-10-12T14:56:43.563Z",
   "window": {
-   "from": "2026-08-12",
-   "to": "2026-10-11"
+   "from": "2026-08-13",
+   "to": "2026-10-12"
   }
  },
  "lastAttemptAt": "2026-10-10T12:12:05.128Z"
