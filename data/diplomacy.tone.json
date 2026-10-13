@@ -904,8 +904,8 @@
   }
  ],
  "lastError": {
-  "message": "fetch failed (causa: Connect Timeout Error (attempted address: api.gdeltproject.org:443, timeout: 10000ms))",
-  "at": "2026-10-13T13:53:39.096Z",
+  "message": "GDELT está bloqueando al runner; no se insiste en esta ejecución",
+  "at": "2026-10-13T20:24:32.281Z",
   "window": {
    "from": "2026-08-14",
    "to": "2026-10-13"
