@@ -834,15 +834,23 @@
   {
    "date": "2026-10-06",
    "value": -3.341
+  },
+  {
+   "date": "2026-10-08",
+   "value": -2.254
+  },
+  {
+   "date": "2026-10-10",
+   "value": -1.9894
   }
  ],
- "lastUpdated": "2026-10-07T20:15:36.792Z",
- "stale": true,
+ "lastUpdated": "2026-10-13T13:53:39.096Z",
+ "stale": false,
  "lastFetch": {
-  "from": "2026-08-08",
-  "to": "2026-10-07",
-  "points": 50,
-  "added": 1,
+  "from": "2026-08-14",
+  "to": "2026-10-13",
+  "points": 46,
+  "added": 2,
   "revised": 0
  },
  "knownGaps": [
@@ -861,7 +869,7 @@
    "days": 6,
    "reason": "gdelt-no-data",
    "detectedAt": "2026-09-24T18:24:53.535Z",
-   "lastCheckedAt": "2026-10-07T20:15:36.792Z",
+   "lastCheckedAt": "2026-10-13T13:53:39.096Z",
    "note": "Ausente en todas las versiones de index.html desde el 5 sept 2026 (runs del 14 y 16 sept terminaron OK con último día 13 sept; el del 23 sept saltó directamente al 20): GDELT no devolvió estos días."
   },
   {
@@ -870,7 +878,7 @@
    "days": 1,
    "reason": "gdelt-no-data",
    "detectedAt": "2026-09-28T13:24:30.853Z",
-   "lastCheckedAt": "2026-10-07T20:15:36.792Z"
+   "lastCheckedAt": "2026-10-13T13:53:39.096Z"
   },
   {
    "from": "2026-10-03",
@@ -878,16 +886,24 @@
    "days": 3,
    "reason": "gdelt-no-data",
    "detectedAt": "2026-10-07T20:15:36.792Z",
-   "lastCheckedAt": "2026-10-07T20:15:36.792Z"
+   "lastCheckedAt": "2026-10-13T13:53:39.096Z"
+  },
+  {
+   "from": "2026-10-07",
+   "to": "2026-10-07",
+   "days": 1,
+   "reason": "gdelt-no-data",
+   "detectedAt": "2026-10-13T13:53:39.096Z",
+   "lastCheckedAt": "2026-10-13T13:53:39.096Z"
+  },
+  {
+   "from": "2026-10-09",
+   "to": "2026-10-09",
+   "days": 1,
+   "reason": "gdelt-no-data",
+   "detectedAt": "2026-10-13T13:53:39.096Z",
+   "lastCheckedAt": "2026-10-13T13:53:39.096Z"
   }
  ],
- "lastError": {
-  "message": "HTTP 429 — Please limit requests to one every 5 seconds or contact kalev.leetaru5@gmail.com for larger queries. All high-traffic users should switch to our ngrams dataset:",
-  "at": "2026-10-12T22:17:15.773Z",
-  "window": {
-   "from": "2026-08-13",
-   "to": "2026-10-12"
-  }
- },
- "lastAttemptAt": "2026-10-12T22:17:15.773Z"
+ "lastAttemptAt": "2026-10-13T13:53:39.096Z"
 }
