@@ -12,12 +12,12 @@
  "lastFetch": null,
  "knownGaps": [],
  "lastError": {
-  "message": "fetch failed (causa: Connect Timeout Error (attempted address: api.gdeltproject.org:443, timeout: 10000ms))",
-  "at": "2026-10-15T11:08:41.372Z",
+  "message": "GDELT no devolvió JSON: Your query was too short or too long.",
+  "at": "2026-10-15T18:44:36.280Z",
   "window": {
    "from": "2026-02-28",
    "to": "2026-10-15"
   }
  },
- "lastAttemptAt": "2026-10-15T11:08:41.372Z"
+ "lastAttemptAt": "2026-10-15T18:44:36.280Z"
 }
