@@ -1051,15 +1051,20 @@
    "date": "2026-10-10",
    "value": 71,
    "norm": 1836
+  },
+  {
+   "date": "2026-10-15",
+   "value": 123,
+   "norm": 5098
   }
  ],
- "lastUpdated": "2026-10-10T12:12:05.128Z",
- "stale": true,
+ "lastUpdated": "2026-10-15T11:08:41.372Z",
+ "stale": false,
  "lastFetch": {
-  "from": "2026-08-11",
-  "to": "2026-10-10",
-  "points": 49,
-  "added": 2,
+  "from": "2026-08-16",
+  "to": "2026-10-15",
+  "points": 45,
+  "added": 1,
   "revised": 0
  },
  "knownGaps": [
@@ -1077,7 +1082,7 @@
    "days": 6,
    "reason": "gdelt-no-data",
    "detectedAt": "2026-09-29T11:36:33.082Z",
-   "lastCheckedAt": "2026-10-10T12:12:05.128Z"
+   "lastCheckedAt": "2026-10-15T11:08:41.372Z"
   },
   {
    "from": "2026-09-26",
@@ -1085,7 +1090,7 @@
    "days": 1,
    "reason": "gdelt-no-data",
    "detectedAt": "2026-09-29T11:36:33.082Z",
-   "lastCheckedAt": "2026-10-10T12:12:05.128Z"
+   "lastCheckedAt": "2026-10-15T11:08:41.372Z"
   },
   {
    "from": "2026-10-03",
@@ -1093,7 +1098,7 @@
    "days": 3,
    "reason": "gdelt-no-data",
    "detectedAt": "2026-10-09T19:52:12.898Z",
-   "lastCheckedAt": "2026-10-10T12:12:05.128Z"
+   "lastCheckedAt": "2026-10-15T11:08:41.372Z"
   },
   {
    "from": "2026-10-07",
@@ -1101,7 +1106,7 @@
    "days": 1,
    "reason": "gdelt-no-data",
    "detectedAt": "2026-10-10T12:12:05.128Z",
-   "lastCheckedAt": "2026-10-10T12:12:05.128Z"
+   "lastCheckedAt": "2026-10-15T11:08:41.372Z"
   },
   {
    "from": "2026-10-09",
@@ -1109,16 +1114,16 @@
    "days": 1,
    "reason": "gdelt-no-data",
    "detectedAt": "2026-10-10T12:12:05.128Z",
-   "lastCheckedAt": "2026-10-10T12:12:05.128Z"
+   "lastCheckedAt": "2026-10-15T11:08:41.372Z"
+  },
+  {
+   "from": "2026-10-11",
+   "to": "2026-10-14",
+   "days": 4,
+   "reason": "gdelt-no-data",
+   "detectedAt": "2026-10-15T11:08:41.372Z",
+   "lastCheckedAt": "2026-10-15T11:08:41.372Z"
   }
  ],
- "lastError": {
-  "message": "GDELT está bloqueando al runner; no se insiste en esta ejecución",
-  "at": "2026-10-14T19:00:14.649Z",
-  "window": {
-   "from": "2026-08-15",
-   "to": "2026-10-14"
-  }
- },
- "lastAttemptAt": "2026-10-13T20:24:32.281Z"
+ "lastAttemptAt": "2026-10-15T11:08:41.372Z"
 }
