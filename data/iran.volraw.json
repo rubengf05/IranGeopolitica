@@ -1059,7 +1059,7 @@
   }
  ],
  "lastUpdated": "2026-10-15T18:44:36.280Z",
- "stale": false,
+ "stale": true,
  "lastFetch": {
   "from": "2026-08-16",
   "to": "2026-10-15",
@@ -1125,5 +1125,13 @@
    "lastCheckedAt": "2026-10-15T18:44:36.280Z"
   }
  ],
- "lastAttemptAt": "2026-10-15T18:44:36.280Z"
+ "lastError": {
+  "message": "HTTP 429 — Please limit requests to one every 5 seconds or contact kalev.leetaru5@gmail.com for larger queries. All high-traffic users should switch to our ngrams dataset:",
+  "at": "2026-10-16T11:03:42.086Z",
+  "window": {
+   "from": "2026-08-17",
+   "to": "2026-10-16"
+  }
+ },
+ "lastAttemptAt": "2026-10-16T11:03:42.086Z"
 }

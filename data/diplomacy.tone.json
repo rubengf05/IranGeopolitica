@@ -842,14 +842,22 @@
   {
    "date": "2026-10-10",
    "value": -2.7428
+  },
+  {
+   "date": "2026-10-15",
+   "value": -3.1506
+  },
+  {
+   "date": "2026-10-16",
+   "value": -2.5629
   }
  ],
- "lastUpdated": "2026-10-10T12:12:05.128Z",
- "stale": true,
+ "lastUpdated": "2026-10-16T11:03:42.086Z",
+ "stale": false,
  "lastFetch": {
-  "from": "2026-08-11",
-  "to": "2026-10-10",
-  "points": 49,
+  "from": "2026-08-17",
+  "to": "2026-10-16",
+  "points": 45,
   "added": 2,
   "revised": 0
  },
@@ -868,7 +876,7 @@
    "days": 6,
    "reason": "gdelt-no-data",
    "detectedAt": "2026-09-29T11:36:33.082Z",
-   "lastCheckedAt": "2026-10-10T12:12:05.128Z"
+   "lastCheckedAt": "2026-10-16T11:03:42.086Z"
   },
   {
    "from": "2026-09-26",
@@ -876,7 +884,7 @@
    "days": 1,
    "reason": "gdelt-no-data",
    "detectedAt": "2026-09-29T11:36:33.082Z",
-   "lastCheckedAt": "2026-10-10T12:12:05.128Z"
+   "lastCheckedAt": "2026-10-16T11:03:42.086Z"
   },
   {
    "from": "2026-10-03",
@@ -884,7 +892,7 @@
    "days": 3,
    "reason": "gdelt-no-data",
    "detectedAt": "2026-10-07T20:15:36.792Z",
-   "lastCheckedAt": "2026-10-10T12:12:05.128Z"
+   "lastCheckedAt": "2026-10-16T11:03:42.086Z"
   },
   {
    "from": "2026-10-07",
@@ -892,7 +900,7 @@
    "days": 1,
    "reason": "gdelt-no-data",
    "detectedAt": "2026-10-10T12:12:05.128Z",
-   "lastCheckedAt": "2026-10-10T12:12:05.128Z"
+   "lastCheckedAt": "2026-10-16T11:03:42.086Z"
   },
   {
    "from": "2026-10-09",
@@ -900,16 +908,16 @@
    "days": 1,
    "reason": "gdelt-no-data",
    "detectedAt": "2026-10-10T12:12:05.128Z",
-   "lastCheckedAt": "2026-10-10T12:12:05.128Z"
+   "lastCheckedAt": "2026-10-16T11:03:42.086Z"
+  },
+  {
+   "from": "2026-10-11",
+   "to": "2026-10-14",
+   "days": 4,
+   "reason": "gdelt-no-data",
+   "detectedAt": "2026-10-16T11:03:42.086Z",
+   "lastCheckedAt": "2026-10-16T11:03:42.086Z"
   }
  ],
- "lastError": {
-  "message": "HTTP 429 — Please limit requests to one every 5 seconds or contact kalev.leetaru5@gmail.com for larger queries. All high-traffic users should switch to our ngrams dataset:",
-  "at": "2026-10-15T18:44:36.280Z",
-  "window": {
-   "from": "2026-08-16",
-   "to": "2026-10-15"
-  }
- },
- "lastAttemptAt": "2026-10-15T18:44:36.280Z"
+ "lastAttemptAt": "2026-10-16T11:03:42.086Z"
 }

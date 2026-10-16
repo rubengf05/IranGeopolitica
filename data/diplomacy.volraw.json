@@ -1059,7 +1059,7 @@
   }
  ],
  "lastUpdated": "2026-10-15T18:44:36.280Z",
- "stale": false,
+ "stale": true,
  "lastFetch": {
   "from": "2026-08-16",
   "to": "2026-10-15",
@@ -1125,5 +1125,13 @@
    "lastCheckedAt": "2026-10-15T18:44:36.280Z"
   }
  ],
+ "lastError": {
+  "message": "GDELT está bloqueando al runner; no se insiste en esta ejecución",
+  "at": "2026-10-16T11:03:42.086Z",
+  "window": {
+   "from": "2026-08-17",
+   "to": "2026-10-16"
+  }
+ },
  "lastAttemptAt": "2026-10-15T18:44:36.280Z"
 }
