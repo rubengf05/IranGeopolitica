@@ -842,14 +842,22 @@
   {
    "date": "2026-10-10",
    "value": -1.9894
+  },
+  {
+   "date": "2026-10-15",
+   "value": -2.9579
+  },
+  {
+   "date": "2026-10-16",
+   "value": -2.5311
   }
  ],
- "lastUpdated": "2026-10-13T13:53:39.096Z",
- "stale": true,
+ "lastUpdated": "2026-10-16T18:29:33.775Z",
+ "stale": false,
  "lastFetch": {
-  "from": "2026-08-14",
-  "to": "2026-10-13",
-  "points": 46,
+  "from": "2026-08-17",
+  "to": "2026-10-16",
+  "points": 45,
   "added": 2,
   "revised": 0
  },
@@ -869,7 +877,7 @@
    "days": 6,
    "reason": "gdelt-no-data",
    "detectedAt": "2026-09-24T18:24:53.535Z",
-   "lastCheckedAt": "2026-10-13T13:53:39.096Z",
+   "lastCheckedAt": "2026-10-16T18:29:33.775Z",
    "note": "Ausente en todas las versiones de index.html desde el 5 sept 2026 (runs del 14 y 16 sept terminaron OK con último día 13 sept; el del 23 sept saltó directamente al 20): GDELT no devolvió estos días."
   },
   {
@@ -878,7 +886,7 @@
    "days": 1,
    "reason": "gdelt-no-data",
    "detectedAt": "2026-09-28T13:24:30.853Z",
-   "lastCheckedAt": "2026-10-13T13:53:39.096Z"
+   "lastCheckedAt": "2026-10-16T18:29:33.775Z"
   },
   {
    "from": "2026-10-03",
@@ -886,7 +894,7 @@
    "days": 3,
    "reason": "gdelt-no-data",
    "detectedAt": "2026-10-07T20:15:36.792Z",
-   "lastCheckedAt": "2026-10-13T13:53:39.096Z"
+   "lastCheckedAt": "2026-10-16T18:29:33.775Z"
   },
   {
    "from": "2026-10-07",
@@ -894,7 +902,7 @@
    "days": 1,
    "reason": "gdelt-no-data",
    "detectedAt": "2026-10-13T13:53:39.096Z",
-   "lastCheckedAt": "2026-10-13T13:53:39.096Z"
+   "lastCheckedAt": "2026-10-16T18:29:33.775Z"
   },
   {
    "from": "2026-10-09",
@@ -902,16 +910,16 @@
    "days": 1,
    "reason": "gdelt-no-data",
    "detectedAt": "2026-10-13T13:53:39.096Z",
-   "lastCheckedAt": "2026-10-13T13:53:39.096Z"
+   "lastCheckedAt": "2026-10-16T18:29:33.775Z"
+  },
+  {
+   "from": "2026-10-11",
+   "to": "2026-10-14",
+   "days": 4,
+   "reason": "gdelt-no-data",
+   "detectedAt": "2026-10-16T18:29:33.775Z",
+   "lastCheckedAt": "2026-10-16T18:29:33.775Z"
   }
  ],
- "lastError": {
-  "message": "HTTP 429 — Please limit requests to one every 5 seconds or contact kalev.leetaru5@gmail.com for larger queries. All high-traffic users should switch to our ngrams dataset:",
-  "at": "2026-10-16T11:03:42.086Z",
-  "window": {
-   "from": "2026-08-17",
-   "to": "2026-10-16"
-  }
- },
- "lastAttemptAt": "2026-10-16T11:03:42.086Z"
+ "lastAttemptAt": "2026-10-16T18:29:33.775Z"
 }

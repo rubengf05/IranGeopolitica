@@ -849,17 +849,17 @@
   },
   {
    "date": "2026-10-16",
-   "value": -2.5629
+   "value": -2.5344
   }
  ],
- "lastUpdated": "2026-10-16T11:03:42.086Z",
+ "lastUpdated": "2026-10-16T18:29:33.775Z",
  "stale": false,
  "lastFetch": {
   "from": "2026-08-17",
   "to": "2026-10-16",
   "points": 45,
-  "added": 2,
-  "revised": 0
+  "added": 0,
+  "revised": 1
  },
  "knownGaps": [
   {
@@ -876,7 +876,7 @@
    "days": 6,
    "reason": "gdelt-no-data",
    "detectedAt": "2026-09-29T11:36:33.082Z",
-   "lastCheckedAt": "2026-10-16T11:03:42.086Z"
+   "lastCheckedAt": "2026-10-16T18:29:33.775Z"
   },
   {
    "from": "2026-09-26",
@@ -884,7 +884,7 @@
    "days": 1,
    "reason": "gdelt-no-data",
    "detectedAt": "2026-09-29T11:36:33.082Z",
-   "lastCheckedAt": "2026-10-16T11:03:42.086Z"
+   "lastCheckedAt": "2026-10-16T18:29:33.775Z"
   },
   {
    "from": "2026-10-03",
@@ -892,7 +892,7 @@
    "days": 3,
    "reason": "gdelt-no-data",
    "detectedAt": "2026-10-07T20:15:36.792Z",
-   "lastCheckedAt": "2026-10-16T11:03:42.086Z"
+   "lastCheckedAt": "2026-10-16T18:29:33.775Z"
   },
   {
    "from": "2026-10-07",
@@ -900,7 +900,7 @@
    "days": 1,
    "reason": "gdelt-no-data",
    "detectedAt": "2026-10-10T12:12:05.128Z",
-   "lastCheckedAt": "2026-10-16T11:03:42.086Z"
+   "lastCheckedAt": "2026-10-16T18:29:33.775Z"
   },
   {
    "from": "2026-10-09",
@@ -908,7 +908,7 @@
    "days": 1,
    "reason": "gdelt-no-data",
    "detectedAt": "2026-10-10T12:12:05.128Z",
-   "lastCheckedAt": "2026-10-16T11:03:42.086Z"
+   "lastCheckedAt": "2026-10-16T18:29:33.775Z"
   },
   {
    "from": "2026-10-11",
@@ -916,8 +916,8 @@
    "days": 4,
    "reason": "gdelt-no-data",
    "detectedAt": "2026-10-16T11:03:42.086Z",
-   "lastCheckedAt": "2026-10-16T11:03:42.086Z"
+   "lastCheckedAt": "2026-10-16T18:29:33.775Z"
   }
  ],
- "lastAttemptAt": "2026-10-16T11:03:42.086Z"
+ "lastAttemptAt": "2026-10-16T18:29:33.775Z"
 }
