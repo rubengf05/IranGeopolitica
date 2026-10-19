@@ -923,11 +923,11 @@
  ],
  "lastError": {
   "message": "fetch failed (causa: Connect Timeout Error (attempted address: api.gdeltproject.org:443, timeout: 10000ms))",
-  "at": "2026-10-18T17:37:49.051Z",
+  "at": "2026-10-19T12:40:55.040Z",
   "window": {
-   "from": "2026-08-19",
-   "to": "2026-10-18"
+   "from": "2026-08-20",
+   "to": "2026-10-19"
   }
  },
- "lastAttemptAt": "2026-10-18T17:37:49.051Z"
+ "lastAttemptAt": "2026-10-19T12:40:55.040Z"
 }
