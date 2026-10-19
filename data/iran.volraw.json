@@ -1064,15 +1064,25 @@
   },
   {
    "date": "2026-10-17",
-   "value": 1633,
-   "norm": 44319
+   "value": 3103,
+   "norm": 94046
+  },
+  {
+   "date": "2026-10-18",
+   "value": 2280,
+   "norm": 76163
+  },
+  {
+   "date": "2026-10-19",
+   "value": 3608,
+   "norm": 110064
   }
  ],
- "lastUpdated": "2026-10-17T10:23:52.079Z",
- "stale": true,
+ "lastUpdated": "2026-10-19T20:16:40.414Z",
+ "stale": false,
  "lastFetch": {
-  "from": "2026-08-18",
-  "to": "2026-10-17",
+  "from": "2026-08-20",
+  "to": "2026-10-19",
   "points": 45,
   "added": 2,
   "revised": 1
@@ -1092,7 +1102,7 @@
    "days": 6,
    "reason": "gdelt-no-data",
    "detectedAt": "2026-09-29T11:36:33.082Z",
-   "lastCheckedAt": "2026-10-17T10:23:52.079Z"
+   "lastCheckedAt": "2026-10-19T20:16:40.414Z"
   },
   {
    "from": "2026-09-26",
@@ -1100,7 +1110,7 @@
    "days": 1,
    "reason": "gdelt-no-data",
    "detectedAt": "2026-09-29T11:36:33.082Z",
-   "lastCheckedAt": "2026-10-17T10:23:52.079Z"
+   "lastCheckedAt": "2026-10-19T20:16:40.414Z"
   },
   {
    "from": "2026-10-03",
@@ -1108,7 +1118,7 @@
    "days": 3,
    "reason": "gdelt-no-data",
    "detectedAt": "2026-10-09T19:52:12.898Z",
-   "lastCheckedAt": "2026-10-17T10:23:52.079Z"
+   "lastCheckedAt": "2026-10-19T20:16:40.414Z"
   },
   {
    "from": "2026-10-07",
@@ -1116,7 +1126,7 @@
    "days": 1,
    "reason": "gdelt-no-data",
    "detectedAt": "2026-10-10T12:12:05.128Z",
-   "lastCheckedAt": "2026-10-17T10:23:52.079Z"
+   "lastCheckedAt": "2026-10-19T20:16:40.414Z"
   },
   {
    "from": "2026-10-09",
@@ -1124,7 +1134,7 @@
    "days": 1,
    "reason": "gdelt-no-data",
    "detectedAt": "2026-10-10T12:12:05.128Z",
-   "lastCheckedAt": "2026-10-17T10:23:52.079Z"
+   "lastCheckedAt": "2026-10-19T20:16:40.414Z"
   },
   {
    "from": "2026-10-11",
@@ -1132,16 +1142,8 @@
    "days": 4,
    "reason": "gdelt-no-data",
    "detectedAt": "2026-10-15T11:08:41.372Z",
-   "lastCheckedAt": "2026-10-17T10:23:52.079Z"
+   "lastCheckedAt": "2026-10-19T20:16:40.414Z"
   }
  ],
- "lastError": {
-  "message": "GDELT está bloqueando al runner; no se insiste en esta ejecución",
-  "at": "2026-10-19T12:40:55.040Z",
-  "window": {
-   "from": "2026-08-20",
-   "to": "2026-10-19"
-  }
- },
- "lastAttemptAt": "2026-10-18T17:37:49.051Z"
+ "lastAttemptAt": "2026-10-19T20:16:40.414Z"
 }

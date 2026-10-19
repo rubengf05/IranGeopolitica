@@ -853,16 +853,24 @@
   },
   {
    "date": "2026-10-17",
-   "value": -3.1834
+   "value": -3.1237
+  },
+  {
+   "date": "2026-10-18",
+   "value": -2.4938
+  },
+  {
+   "date": "2026-10-19",
+   "value": -2.9068
   }
  ],
- "lastUpdated": "2026-10-17T10:23:52.079Z",
- "stale": true,
+ "lastUpdated": "2026-10-19T20:16:40.414Z",
+ "stale": false,
  "lastFetch": {
-  "from": "2026-08-18",
-  "to": "2026-10-17",
+  "from": "2026-08-20",
+  "to": "2026-10-19",
   "points": 45,
-  "added": 1,
+  "added": 2,
   "revised": 1
  },
  "knownGaps": [
@@ -880,7 +888,7 @@
    "days": 6,
    "reason": "gdelt-no-data",
    "detectedAt": "2026-09-29T11:36:33.082Z",
-   "lastCheckedAt": "2026-10-17T10:23:52.079Z"
+   "lastCheckedAt": "2026-10-19T20:16:40.414Z"
   },
   {
    "from": "2026-09-26",
@@ -888,7 +896,7 @@
    "days": 1,
    "reason": "gdelt-no-data",
    "detectedAt": "2026-09-29T11:36:33.082Z",
-   "lastCheckedAt": "2026-10-17T10:23:52.079Z"
+   "lastCheckedAt": "2026-10-19T20:16:40.414Z"
   },
   {
    "from": "2026-10-03",
@@ -896,7 +904,7 @@
    "days": 3,
    "reason": "gdelt-no-data",
    "detectedAt": "2026-10-07T20:15:36.792Z",
-   "lastCheckedAt": "2026-10-17T10:23:52.079Z"
+   "lastCheckedAt": "2026-10-19T20:16:40.414Z"
   },
   {
    "from": "2026-10-07",
@@ -904,7 +912,7 @@
    "days": 1,
    "reason": "gdelt-no-data",
    "detectedAt": "2026-10-10T12:12:05.128Z",
-   "lastCheckedAt": "2026-10-17T10:23:52.079Z"
+   "lastCheckedAt": "2026-10-19T20:16:40.414Z"
   },
   {
    "from": "2026-10-09",
@@ -912,7 +920,7 @@
    "days": 1,
    "reason": "gdelt-no-data",
    "detectedAt": "2026-10-10T12:12:05.128Z",
-   "lastCheckedAt": "2026-10-17T10:23:52.079Z"
+   "lastCheckedAt": "2026-10-19T20:16:40.414Z"
   },
   {
    "from": "2026-10-11",
@@ -920,16 +928,8 @@
    "days": 4,
    "reason": "gdelt-no-data",
    "detectedAt": "2026-10-16T11:03:42.086Z",
-   "lastCheckedAt": "2026-10-17T10:23:52.079Z"
+   "lastCheckedAt": "2026-10-19T20:16:40.414Z"
   }
  ],
- "lastError": {
-  "message": "HTTP 429 — Please limit requests to one every 5 seconds or contact kalev.leetaru5@gmail.com for larger queries. All high-traffic users should switch to our ngrams dataset:",
-  "at": "2026-10-19T12:40:55.040Z",
-  "window": {
-   "from": "2026-08-20",
-   "to": "2026-10-19"
-  }
- },
- "lastAttemptAt": "2026-10-19T12:40:55.040Z"
+ "lastAttemptAt": "2026-10-19T20:16:40.414Z"
 }

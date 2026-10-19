@@ -849,17 +849,29 @@
   },
   {
    "date": "2026-10-16",
-   "value": -2.5311
+   "value": -2.6221
+  },
+  {
+   "date": "2026-10-17",
+   "value": -3.1826
+  },
+  {
+   "date": "2026-10-18",
+   "value": -2.5965
+  },
+  {
+   "date": "2026-10-19",
+   "value": -2.5678
   }
  ],
- "lastUpdated": "2026-10-16T18:29:33.775Z",
- "stale": true,
+ "lastUpdated": "2026-10-19T20:16:40.414Z",
+ "stale": false,
  "lastFetch": {
-  "from": "2026-08-17",
-  "to": "2026-10-16",
+  "from": "2026-08-20",
+  "to": "2026-10-19",
   "points": 45,
-  "added": 2,
-  "revised": 0
+  "added": 3,
+  "revised": 1
  },
  "knownGaps": [
   {
@@ -877,7 +889,7 @@
    "days": 6,
    "reason": "gdelt-no-data",
    "detectedAt": "2026-09-24T18:24:53.535Z",
-   "lastCheckedAt": "2026-10-16T18:29:33.775Z",
+   "lastCheckedAt": "2026-10-19T20:16:40.414Z",
    "note": "Ausente en todas las versiones de index.html desde el 5 sept 2026 (runs del 14 y 16 sept terminaron OK con último día 13 sept; el del 23 sept saltó directamente al 20): GDELT no devolvió estos días."
   },
   {
@@ -886,7 +898,7 @@
    "days": 1,
    "reason": "gdelt-no-data",
    "detectedAt": "2026-09-28T13:24:30.853Z",
-   "lastCheckedAt": "2026-10-16T18:29:33.775Z"
+   "lastCheckedAt": "2026-10-19T20:16:40.414Z"
   },
   {
    "from": "2026-10-03",
@@ -894,7 +906,7 @@
    "days": 3,
    "reason": "gdelt-no-data",
    "detectedAt": "2026-10-07T20:15:36.792Z",
-   "lastCheckedAt": "2026-10-16T18:29:33.775Z"
+   "lastCheckedAt": "2026-10-19T20:16:40.414Z"
   },
   {
    "from": "2026-10-07",
@@ -902,7 +914,7 @@
    "days": 1,
    "reason": "gdelt-no-data",
    "detectedAt": "2026-10-13T13:53:39.096Z",
-   "lastCheckedAt": "2026-10-16T18:29:33.775Z"
+   "lastCheckedAt": "2026-10-19T20:16:40.414Z"
   },
   {
    "from": "2026-10-09",
@@ -910,7 +922,7 @@
    "days": 1,
    "reason": "gdelt-no-data",
    "detectedAt": "2026-10-13T13:53:39.096Z",
-   "lastCheckedAt": "2026-10-16T18:29:33.775Z"
+   "lastCheckedAt": "2026-10-19T20:16:40.414Z"
   },
   {
    "from": "2026-10-11",
@@ -918,16 +930,8 @@
    "days": 4,
    "reason": "gdelt-no-data",
    "detectedAt": "2026-10-16T18:29:33.775Z",
-   "lastCheckedAt": "2026-10-16T18:29:33.775Z"
+   "lastCheckedAt": "2026-10-19T20:16:40.414Z"
   }
  ],
- "lastError": {
-  "message": "fetch failed (causa: Connect Timeout Error (attempted address: api.gdeltproject.org:443, timeout: 10000ms))",
-  "at": "2026-10-19T12:40:55.040Z",
-  "window": {
-   "from": "2026-08-20",
-   "to": "2026-10-19"
-  }
- },
- "lastAttemptAt": "2026-10-19T12:40:55.040Z"
+ "lastAttemptAt": "2026-10-19T20:16:40.414Z"
 }
