@@ -1141,12 +1141,12 @@
   }
  ],
  "lastError": {
-  "message": "HTTP 429 — Please limit requests to one every 5 seconds or contact kalev.leetaru5@gmail.com for larger queries. All high-traffic users should switch to our ngrams dataset:",
-  "at": "2026-10-21T19:00:28.557Z",
+  "message": "fetch failed (causa: Connect Timeout Error (attempted address: api.gdeltproject.org:443, timeout: 10000ms))",
+  "at": "2026-10-22T11:28:33.892Z",
   "window": {
-   "from": "2026-08-22",
-   "to": "2026-10-21"
+   "from": "2026-08-23",
+   "to": "2026-10-22"
   }
  },
- "lastAttemptAt": "2026-10-21T19:00:28.557Z"
+ "lastAttemptAt": "2026-10-22T11:28:33.892Z"
 }
